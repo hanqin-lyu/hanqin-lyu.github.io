@@ -1,6 +1,6 @@
 Welcome to Hanqin's show
 
-Cloud security / IAM analyst projects collection
+Projects collection
 
 project 1
 
