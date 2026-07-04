@@ -3,94 +3,81 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hanqin Lyu — Cloud Security & Identity Engineer</title>
-<meta name="description" content="Cloud security and identity governance engineer portfolio — Azure, Entra ID, Zero Trust projects">
+<title>PROJECT TITLE — Your Name</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../../style.css">
 </head>
 <body>
 
 <nav class="site-nav">
   <div class="wrap">
-    <div class="nav-mark">Hanqin<span>Lyu</span></div>
+    <div class="nav-mark">YOUR<span>NAME</span></div>
     <div class="nav-links">
-      <a href="#projects">Projects</a>
-      <a href="#certifications">Certifications</a>
-      <a href="mailto:lyuhanqin@gmail.com">Contact</a>
+      <a href="../../index.html#projects">All projects</a>
+      <a href="https://github.com/yourusername/REPO-NAME">Repo</a>
     </div>
   </div>
 </nav>
 
-<header class="hero">
+<header class="hero" style="padding-bottom:48px;">
   <div class="wrap">
-    <div class="eyebrow">Cloud Security / Identity Engineer</div>
-    <h1>Hanqin Lyu</h1>
-    <p class="lede">
-      Focused on Microsoft Entra ID identity governance and cloud security baseline
-      automation — eliminating long-lived credentials and bringing both human and
-      non-human identities into a dynamic, least-privilege access model.
-    </p>
-    <div class="badge-row" id="certifications">
-      <span class="badge azure">Azure</span>
-      <span class="badge azure">AWS</span>
-      <span class="badge verified">SC-900</span>
-      <span class="badge verified">CompTIA Security+</span>
-      <span class="badge verified">SC-300</span>
-      <span class="badge pending">SC-500 — In Progress</span>
+    <div class="eyebrow">Project / CATEGORY</div>
+    <h1 style="max-width:22ch;">PROJECT TITLE</h1>
+    <p class="lede">One-sentence positioning statement: what this eliminates, prevents, or enables.</p>
+    <div class="badge-row">
+      <span class="badge azure">Tech 1</span>
+      <span class="badge azure">Tech 2</span>
+      <span class="badge azure">Tech 3</span>
     </div>
-    <div class="cta-row">
-      <a href="#projects" class="btn btn-primary">View projects</a>
-      <a href="#" class="btn btn-secondary">Download resume (PDF)</a>
+    <div class="meta-row">
+      <span>Category label</span>
+      <span>·</span>
+      <span>Updated MONTH YEAR</span>
     </div>
   </div>
 </header>
 
-<section class="section" id="projects">
+<section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Projects</h2>
-      <p>Two projects that together form a complete cloud security engineering
-        narrative: infrastructure compliance and identity governance.</p>
+      <h2>Situation</h2>
     </div>
+    <p style="color:var(--ink-soft); max-width:70ch;">
+      What problem existed before this project. Be specific about the risk or cost.
+    </p>
 
-    <div class="card-grid">
+    <div class="section-head" style="margin-top:40px;">
+      <h2>Task</h2>
+    </div>
+    <p style="color:var(--ink-soft); max-width:70ch;">
+      What you set out to build or fix, and the constraint that made it non-trivial.
+    </p>
 
-      <a class="project-card" href="Project_IAM/entra-id-iam-governance.html" style="display:block; color:inherit;">
-        <div class="card-top">
-          <h3>Zero-Trust Identity Governance Platform on Entra ID</h3>
-          <span class="status-pill">GOVERNED</span>
-        </div>
-        <p>Covers PIM least-privilege access, risk-adaptive Conditional Access
-          policies, secret-free Workload Identity Federation, and Entitlement
-          Management with lifecycle automation.</p>
-        <div class="tag-row">
-          <span class="tag">Entra ID</span>
-          <span class="tag">PIM</span>
-          <span class="tag">Conditional Access</span>
-          <span class="tag">Graph API</span>
-          <span class="tag">GitHub Actions OIDC</span>
-        </div>
-        <span class="card-link">View details →</span>
-      </a>
+    <table class="metrics-table">
+      <thead>
+        <tr><th>Metric</th><th>Before</th><th>After</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Metric 1</td><td>Value</td><td>Value</td></tr>
+        <tr><td>Metric 2</td><td>Value</td><td>Value</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
-      <a class="project-card" href="Project_Az_sec_auto/Az_IaC.html" style="display:block; color:inherit;">
-        <div class="card-top">
-          <h3>Enterprise Cloud Security Baseline Automation & Compliance Pipeline</h3>
-          <span class="status-pill">ACTIVE</span>
-        </div>
-        <p>Infrastructure-side security baseline automation and continuous
-          compliance pipeline for Azure, preventing environment drift and
-          misconfiguration — the infrastructure counterpart to the identity
-          governance project.</p>
-        <div class="tag-row">
-          <span class="tag">Azure Policy</span>
-          <span class="tag">IaC</span>
-          <span class="tag">Compliance</span>
-        </div>
-        <span class="card-link">View details →</span>
-      </a>
-
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Architecture</h2>
+      <p>One sentence describing what the diagram shows.</p>
+    </div>
+    <div class="diagram-block">
+      <pre class="mermaid">
+flowchart LR
+    A["Step 1"] --> B["Step 2"]
+    B --> C["Step 3"]
+      </pre>
     </div>
   </div>
 </section>
@@ -98,18 +85,90 @@
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>About</h2>
-      <p>A short 2–3 sentence introduction: your background, focus area, and the
-        type of role you're targeting. Keep it brief.</p>
+      <h2>Action</h2>
+    </div>
+    <ul class="decision-list">
+      <li><strong>Action item 1</strong>
+        <span>What you built and why.</span></li>
+      <li><strong>Action item 2</strong>
+        <span>What you built and why.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Result</h2>
+    </div>
+    <p style="color:var(--ink-soft); max-width:70ch;">
+      Quantified outcome. Lead with the number, then explain what it means.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Technology stack</h2>
+    </div>
+    <table class="stack-table">
+      <thead>
+        <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Layer 1</td><td>Tech</td><td>Purpose</td></tr>
+        <tr><td>Layer 2</td><td>Tech</td><td>Purpose</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Design decisions & trade-offs</h2>
+    </div>
+    <ul class="decision-list">
+      <li><strong>Why X over Y</strong>
+        <span>The reasoning, in one or two sentences.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Related project</h2>
+    </div>
+    <div class="related-box">
+      <p>See also: <a href="../OTHER-PROJECT-FOLDER/">OTHER PROJECT TITLE</a> — one sentence on how it connects.</p>
     </div>
   </div>
 </section>
 
 <footer class="site-footer">
   <div class="wrap">
-    <p>© 2026 Hanqin Lyu · <a href="https://github.com/hanqin_sec">GitHub</a> · <a href="https://linkedin.com/in/hanqinlyu">LinkedIn</a> · <a href="mailto:lyuhanqin@gmail.com">Email</a></p>
+    <p><a href="../../index.html">← Back to all projects</a></p>
   </div>
 </footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#EFF6FC',
+      primaryBorderColor: '#115EA3',
+      primaryTextColor: '#101828',
+      lineColor: '#115EA3',
+      secondaryColor: '#E7F5EF',
+      tertiaryColor: '#FFFFFF',
+      fontFamily: 'IBM Plex Sans, sans-serif'
+    }
+  });
+</script>
 
 </body>
 </html>
