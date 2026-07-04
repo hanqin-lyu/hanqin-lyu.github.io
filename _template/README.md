@@ -1,7 +1,7 @@
 # How to add a new project
 
-1. Copy this entire `_template/` folder and rename the copy to your project's
-   slug, e.g. `projects/my-new-project/`. Keep the `images/` and `docs/`
+1. Copy this entire `_template/` folder and rename the copy to new project's
+   slug, e.g. `projects/new-project/`. Keep the `images/` and `docs/`
    subfolders — they're there for when you have screenshots or supporting
    files to attach.
 
@@ -24,22 +24,22 @@
    card in the `card-grid`, copying the structure of an existing card:
 
    ```html
-   <a class="project-card" href="projects/my-new-project/" style="display:block; color:inherit;">
+   <a class="project-card" href="projects/new-project/" style="display:block; color:inherit;">
      <div class="card-top">
-       <h3>My New Project Title</h3>
+       <h3>New Project Title</h3>
        <span class="status-pill">ACTIVE</span>
      </div>
-     <p>One or two sentence summary.</p>
+     <p>Few words for summary.</p>
      <div class="tag-row">
        <span class="tag">Tech 1</span>
        <span class="tag">Tech 2</span>
      </div>
-     <span class="card-link">View architecture & details →</span>
+     <span class="card-link">View details →</span>
    </a>
    ```
 
 6. If you want the new project to also appear as a "Related project" link on
-   an existing page, add it there too.
+   an existing page, add it there of other project.
 
 That's it — no changes to `style.css` are needed for a new project unless
 you're introducing a new visual pattern.

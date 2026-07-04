@@ -11,6 +11,3 @@ to open or download alongside the write-up.
 ```
 
 No `../` needed — the file and the HTML file are in the same project folder.
-
-Delete this README once the folder has real content in it (or leave it, it
-won't break anything).
