@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shift-Left &amp; Cloud Guardrails on Azure</title>
+<meta name="description" content="Two-layer Azure guardrails: Terraform + GitHub Actions pre-deployment gates and a subscription-level Azure Policy, built with a credential-free AI coding agent.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .evidence { margin: 20px 0 8px; }
+  .evidence img {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    display: block;
+  }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin: 28px 0 8px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .kpi b { display: block; font-family: var(--font-display); font-size: 28px; color: var(--azure); line-height: 1.1; }
+  .kpi span { display: block; margin-top: 6px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.4; }
+  .note-box { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--azure); border-radius: var(--radius); padding: 16px 20px; margin: 20px 0 8px; }
+  .note-box p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+  .note-box strong { color: var(--ink); }
+  .stack-table, .metrics-table { display: block; overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <div class="nav-mark">Hanqin<span>Lyu</span></div>
+    <div class="nav-links">
+      <a href="../index.html#projects">All projects</a>
+      <a href="https://github.com/hanqin-lyu/project-IaC-Azconfig">Repo</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" style="padding-bottom:48px;">
+  <div class="wrap">
+    <div class="eyebrow">Project / Cloud Security Guardrails</div>
+    <h1 style="max-width:24ch;">Shift-Left &amp; Cloud Guardrails on Azure</h1>
+    <p class="lede">Two layers of defence for Azure delivery: pre-deployment gates that developers
+      can see, and a subscription-level Azure Policy that nobody can bypass — built as code,
+      deployed with secret-free OIDC, and developed alongside an AI coding agent that holds
+      no cloud credentials.</p>
+    <div class="badge-row">
+      <span class="badge azure">Terraform</span>
+      <span class="badge azure">Azure Verified Modules</span>
+      <span class="badge azure">GitHub Actions</span>
+      <span class="badge azure">GitHub OIDC</span>
+      <span class="badge azure">Checkov</span>
+      <span class="badge azure">gitleaks</span>
+      <span class="badge azure">Azure Policy</span>
+      <span class="badge azure">Claude Code</span>
+    </div>
+    <div class="meta-row">
+      <span>SC-500 aligned</span>
+      <span>·</span>
+      <span>Updated Nov 2026</span>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Overview</h2>
+    </div>
+    <p style="color:var(--ink-soft); max-width:70ch;">
+      The workload is a small expense-assistant platform: SQL Database, Key Vault, a storage account
+      with immutable audit-log retention, an Azure AI Services account, and a VNet with an NSG —
+      36 Terraform-managed resources (9 Azure resources plus module helpers) from 6 Azure Verified Modules, all defined in Terraform and deployed only
+      through a pipeline.
+    </p>
+    <p style="color:var(--ink-soft); max-width:70ch;">
+      The question behind the project: <strong style="color:var(--ink);">what stops an engineer from shipping an NSG that exposes
+      SSH to the internet, and what still stops them if they bypass the review?</strong> To answer it
+      with evidence instead of opinion, I seeded two misconfigurations on purpose (an
+      open-to-the-world SSH rule and a hardcoded SQL password default) and measured which layer
+      catches each one, and when.
+    </p>
+
+    <div class="kpi-row">
+      <div class="kpi"><b>2 / 2</b><span>seeded misconfigurations caught before deploy (Checkov + gitleaks)</span></div>
+      <div class="kpi"><b>0</b><span>stored cloud secrets — two OIDC identities (CI read, CD write)</span></div>
+      <div class="kpi"><b>3</b><span>parallel gates that must pass before <code>terraform plan</code> runs</span></div>
+      <div class="kpi"><b>403</b><span>Azure Policy rejection of the same code that succeeded under Audit</span></div>
+    </div>
+
+    <table class="metrics-table">
+      <thead>
+        <tr><th>Metric</th><th>Without guardrails</th><th>With this pipeline</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Infrastructure delivery</td><td>Portal clicks, no review trail</td><td>36 Terraform-managed resources (9 Azure resources) from 6 AVM modules, deployed only by the CD identity</td></tr>
+        <tr><td>Stored cloud credentials</td><td>Client secret in CI settings</td><td>0 client secrets; 2 federated OIDC identities</td></tr>
+        <tr><td>Pre-deployment gates on a PR</td><td>None</td><td>3 (format/validate, Checkov, gitleaks) before plan</td></tr>
+        <tr><td>IaC scanner findings on the workload</td><td>0 reported — scanner could not see inside AVM modules</td><td>8 failed checks surfaced, 4 after documented triage (1 deliberate demo finding + 3 known gaps)</td></tr>
+        <tr><td>Seeded open-SSH rule</td><td>Reaches production</td><td>Flagged by <code>CKV_AZURE_10</code> in the PR</td></tr>
+        <tr><td>Seeded hardcoded password</td><td>Reaches production</td><td>Flagged by a custom gitleaks rule in the PR</td></tr>
+        <tr><td>Production apply</td><td>Auto-apply on merge</td><td>1 required reviewer on a GitHub Environment</td></tr>
+        <tr><td>Policy scope</td><td>One resource group</td><td>Entire subscription</td></tr>
+        <tr><td>When CI checks are bypassed (admin merge)</td><td>Violation deploys</td><td>Blocked at deploy time by Azure Policy (Deny)</td></tr>
+        <tr><td>AI coding agent</td><td>Unconstrained shell on a machine with cloud access</td><td>9 permission deny rules + a CLAUDE.md contract; no standing Azure credentials</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Module 1: Shift-left pipeline — three gates before a plan is even allowed</h2>
+      <p>GitHub Actions runs everything that can be checked without touching Azure first, and only then lets a read-only identity produce a plan.</p>
+    </div>
+    <div class="diagram-block">
+      <pre class="mermaid">
+flowchart LR
+    PR["Pull request<br/>touching the workload code"] --> G1["Gate 1<br/>terraform fmt + validate"]
+    PR --> G2["Gate 2<br/>Checkov with external<br/>modules downloaded"]
+    PR --> G3["Gate 3<br/>gitleaks on the<br/>working tree"]
+    G1 --> P["terraform plan<br/>CI identity - Reader"]
+    G2 --> P
+    G3 --> P
+    P --> M["Merge to main"]
+    M --> A{"Manual approval<br/>GitHub Environment"}
+    A --> D["terraform apply<br/>CD identity - Contributor"]
+    D --> ARM["Azure Resource Manager<br/>+ subscription Azure Policy"]
+      </pre>
+    </div>
+    <p class="diagram-caption">Plan runs only if all three gates pass. A shared concurrency group stops plan and apply from fighting over the Terraform state lock.</p>
+
+    <table class="stack-table">
+      <thead>
+        <tr><th>Tool</th><th>What it checks</th><th>What it caught here</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Terraform fmt / validate</td><td>Formatting and configuration validity</td><td>AVM input mistakes made during authoring (VNet <code>parent_id</code>, NSG association, SQL admin settings)</td></tr>
+        <tr><td>Checkov (SARIF to Code Scanning)</td><td>Resource-level misconfiguration, including inside registry modules</td><td><code>CKV_AZURE_10</code>: SSH open to the internet, traced to the exact rule and calling line</td></tr>
+        <tr><td>gitleaks (custom rule)</td><td>Hardcoded credentials in the files themselves</td><td>Hardcoded default on a SQL password variable</td></tr>
+        <tr><td>terraform plan (CI identity)</td><td>Exactly what would change, using real state</td><td>Showed the full change set (36 to add, 0 to destroy) with the intended resource group and names before the first apply</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note-box">
+      <p><strong>A green scan that scanned nothing.</strong> The first Checkov run reported no findings. That was not a pass — the risky
+      settings live in AVM module inputs, and by default Checkov never downloads registry modules, so it never saw an
+      <code>azurerm_network_security_rule</code>. Enabling external-module download made the open-SSH rule appear immediately. The lesson I now
+      apply to every scanner: prove it can fail on a known-bad input before trusting it on a good one.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Module 2: Identity and deployment boundaries — who is allowed to do what</h2>
+      <p>No client secrets anywhere. Each actor gets the smallest permission set that lets it do its one job.</p>
+    </div>
+    <table class="stack-table">
+      <thead>
+        <tr><th>Actor</th><th>Can</th><th>Cannot</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>CI identity (GitHub OIDC)</td><td>Read the subscription; read and lock Terraform state (Blob Data Contributor on the state account only); run <code>plan</code></td><td>Create or change any resource</td></tr>
+        <tr><td>CD identity (GitHub OIDC via Environment)</td><td>Apply the workload after a human approves</td><td>Modify Azure Policy — Contributor has no <code>Microsoft.Authorization</code> write</td></tr>
+        <tr><td>Claude Code agent</td><td>Edit the workload code; run fmt, validate and Checkov locally</td><td><code>apply</code>, <code>destroy</code>, <code>force-unlock</code>, <code>az login</code>, edit the policy module, read state files</td></tr>
+        <tr><td>Security owner (me, local, time-boxed)</td><td>Deploy and change the Policy module</td><td>Nothing persists — login only for the operation, then logout</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:18px; margin:40px 0 4px;">Human approval before production changes</h3>
+    <p style="color:var(--ink-soft); max-width:70ch; margin-bottom:8px;">
+      The CD job runs under a GitHub Environment with a required reviewer, so merging to <code>main</code> never applies by itself.
+      Moving the job into an Environment also changes the OIDC subject GitHub presents, so the CD identity needed a second federated credential
+      scoped to that Environment — the Entra portal pre-filled a subject containing unresolved <code>{Organization ID}</code> placeholders, which
+      would have silently never matched.
+    </p>
+    <div class="evidence">
+      <img src="images/p2-cd-approval-gate.png" alt="GitHub Review pending deployments dialog showing the production-demo environment waiting for approval from the repository owner" loading="lazy">
+      <p class="diagram-caption">CD pauses at the production-demo Environment until the reviewer approves.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Module 3: Azure Policy — the layer that cannot be bypassed</h2>
+      <p>Scanners run where the author controls them. Policy runs inside Azure Resource Manager, where the author has no say.</p>
+    </div>
+    <div class="diagram-block">
+      <pre class="mermaid">
+sequenceDiagram
+    participant CD as CD identity
+    participant ARM as Azure Resource Manager
+    participant Pol as Azure Policy
+    Note over Pol: Round 1 - effect is Audit
+    CD->>ARM: Create NSG rule AllowSSHAll, port 22 from any source
+    ARM->>Pol: Evaluate the request
+    Pol-->>ARM: Non-compliant, audit event logged
+    ARM-->>CD: Created
+    Note over Pol: Round 2 - effect switched to Deny, 0 to add, 2 to change, 0 to destroy
+    CD->>ARM: Create the same rule with the same code and identity
+    ARM->>Pol: Evaluate the request
+    Pol-->>ARM: Deny
+    ARM-->>CD: 403 RequestDisallowedByPolicy
+      </pre>
+    </div>
+    <p class="diagram-caption">In both rounds the failing scan gates were bypassed by an admin merge — only the Policy effect differed.</p>
+
+    <div class="evidence">
+      <img src="images/p2-policy-deny-403.png" alt="GitHub Actions log: Terraform Apply failed creating security rule AllowSSHAll with RequestDisallowedByPolicy under the policy assignment Assign Custom deny: NSG Open SSH" loading="lazy">
+      <p class="diagram-caption">Round 2 CD log: the platform rejects the rule that Round 1 allowed. Subscription IDs are masked by GitHub.</p>
+    </div>
+
+    <ul class="decision-list">
+      <li><strong>Audit first, then Deny</strong>
+        <span>Round 1 recorded the violation without blocking it, which is how a real rollout finds what would break before enforcement. Switching to Deny was an in-place update (0 to add, 2 to change, 0 to destroy), not a rebuild.</span></li>
+      <li><strong>Subscription scope, not resource group</strong>
+        <span>The first version assigned the policy to a single resource group while the workload deployed to a different one, so it governed nothing. Moving the assignment to the subscription fixed that and matches how a platform team would own a guardrail.</span></li>
+      <li><strong>Policy authors and workload deployers are different identities</strong>
+        <span>The identity that deploys the workload cannot edit the policy, so a compromised pipeline cannot disable its own guardrail.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Module 4: AI-assisted engineering — an agent with a contract and no credentials</h2>
+      <p>Claude Code in VS Code is part of the workflow, so it is governed like any other privileged actor.</p>
+    </div>
+    <table class="stack-table">
+      <thead>
+        <tr><th>Control</th><th>What it does</th><th>Strength</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>CLAUDE.md</td><td>Repository contract: directory ownership, hard rules, the deliberate demo fixtures, and the pre-PR loop (fmt, validate, Checkov)</td><td>Guidance — probabilistic</td></tr>
+        <tr><td>Permission deny rules (9)</td><td>Block apply, destroy, force-unlock, az login, edits to the policy module, and reads of state files</td><td>Enforced by the client, but pattern-based and bypassable</td></tr>
+        <tr><td>No standing Azure credentials</td><td>Apply is only possible through the CD pipeline, behind a human approval</td><td>The real backstop</td></tr>
+      </tbody>
+    </table>
+    <h3 style="font-size:18px; margin:40px 0 4px;">Considered and deliberately not adopted</h3>
+    <ul class="decision-list">
+      <li><strong>CODEOWNERS</strong>
+        <span>Solo repository — reviewing my own changes adds friction without adding a control.</span></li>
+      <li><strong>MCP servers</strong>
+        <span>Reviewing code directly inside the editor was simpler and removed a moving part and its failure modes.</span></li>
+      <li><strong>Hooks</strong>
+        <span>Permission rules were more direct for this scope; hooks are the next step if a rule ever needs deterministic enforcement.</span></li>
+      <li><strong>A dedicated Azure service principal for the agent</strong>
+        <span>The safer design is an agent that holds no cloud identity at all.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>What this project demonstrates</h2>
+    </div>
+    <ul class="decision-list">
+      <li><strong>1. Shift-left that is verified, not assumed</strong>
+        <span>Three pre-deployment gates in GitHub Actions, each tested against a known-bad input. One scanner initially reported a false all-clear; I traced it to a blind spot and fixed the configuration instead of trusting the green tick.</span></li>
+      <li><strong>2. Least-privilege delivery with no stored secrets</strong>
+        <span>Separate read-only CI and write-capable CD identities over GitHub OIDC, a human approval gate, and a deployer that structurally cannot edit the policy that governs it.</span></li>
+      <li><strong>3. Preventive guardrails at the platform layer</strong>
+        <span>A custom Azure Policy rolled out Audit-then-Deny at subscription scope, with a before/after showing identical code accepted under Audit and rejected under Deny.</span></li>
+      <li><strong>4. Governing AI coding tools like any privileged identity</strong>
+        <span>A written repository contract, enforced permission rules, and — more importantly — no credentials for the agent to misuse, with honest notes on which controls are advisory.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Questions &amp; Answers</h2>
+    </div>
+    <ul class="decision-list">
+      <li><strong>Why seed vulnerabilities on purpose?</strong>
+        <span>A guardrail you have never seen fail is a guess. Seeding one network misconfiguration and one credential leak let me show which layer catches each, and what the bypass path looks like. They are demo fixtures documented in the repository contract, not intended designs.</span></li>
+      <li><strong>Why did gitleaks miss the password at first?</strong>
+        <span>The packaged action scans only the commits in the pull request, and the password had been committed earlier. It also cannot match a multi-line pattern reliably in a zero-context diff. I switched to scanning the checked-out files and added a rule for hardcoded defaults on password variables, since default rules ignore low-entropy values.</span></li>
+      <li><strong>Why did the pipeline need explicit variable injection?</strong>
+        <span><code>terraform.tfvars</code> is correctly gitignored, so CI and CD saw only the defaults in <code>variable.tf</code> — including a placeholder subscription and a resource group named <code>rg</code>. Reading the variable defaults exposed that the pipeline would have deployed to the wrong place, so CI and CD now inject the real values as <code>TF_VAR_*</code>, and the first CI plan confirmed the intended names.</span></li>
+      <li><strong>Why does Checkov still fail four checks?</strong>
+        <span>One is the deliberate open-SSH demo finding; three (SQL auditing, retention, vulnerability assessment) are real gaps I left visible rather than hiding. Four others were skipped with a written reason each: a false positive Checkov cannot resolve inside a dynamic block, a check on an unused submodule, and two cost-driven choices (zone redundancy, ledger).</span></li>
+      <li><strong>Why did the environment name change between runs?</strong>
+        <span>Key Vault purge protection and Azure AI Services soft-delete hold a deleted name, so re-deploying the same name fails. Changing the environment suffix avoids that without weakening the security setting. Storage account names allow only lowercase letters and digits up to 24 characters, which constrained the suffix.</span></li>
+      <li><strong>Why not rely on the agent's deny rules alone?</strong>
+        <span>They match command patterns and can be sidestepped, so they are a speed bump. The control that holds is that the agent has no Azure credentials and cannot trigger an apply.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Known gaps</h2>
+      <p>Stated openly so the scope of the claims is clear.</p>
+    </div>
+    <ul class="decision-list">
+      <li><strong>Workload hardening is partial</strong>
+        <span>SQL auditing, audit retention and vulnerability assessment are not configured. The AI Services account allows public network access and local authentication. Data services use Service Endpoints; a Private Endpoint upgrade is written up as a proposal, not built.</span></li>
+      <li><strong>The seeded SQL password default must never be reused</strong>
+        <span>It exists only to exercise secret scanning in a throwaway environment.</span></li>
+      <li><strong>Policy covers one rule</strong>
+        <span>A single custom definition (open inbound SSH). Extending to an initiative with exemptions is the natural next step.</span></li>
+      <li><strong>Agent rules are advisory at the edges</strong>
+        <span>Pattern-based deny rules are not a security boundary; the absence of credentials is.</span></li>
+    </ul>
+
+    <div class="related-box" style="margin-top:32px;">
+      <p>Related: <a href="Zero-Trust Identity Governance Platform on Microsoft Entra ID.html">Zero-Trust Identity Governance Platform on Entra ID</a> — the identity-side counterpart; the OIDC pattern used by this pipeline was first built there.
+      Source: <a href="https://github.com/hanqin-lyu/project-IaC-Azconfig">project-IaC-Azconfig</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p><a href="../index.html">← Back to all projects</a></p>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#EFF6FC',
+      primaryBorderColor: '#115EA3',
+      primaryTextColor: '#101828',
+      lineColor: '#115EA3',
+      secondaryColor: '#E7F5EF',
+      tertiaryColor: '#FFFFFF',
+      fontFamily: 'IBM Plex Sans, sans-serif'
+    }
+  });
+</script>
+
+</body>
+</html>
