@@ -25,6 +25,12 @@
   /* Mermaid diagrams use fixed light colours, so their frame stays light in every theme. */
   --diagram-surface: #FFFFFF;
 
+  /* Shadow — only lifts a hovered or focused project card; nothing rests on a shadow. */
+  --shadow-raised:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 8px -2px rgba(16, 24, 40, 0.06),
+    0 16px 32px -8px rgba(17, 94, 163, 0.12);
+
   /* Type */
   --font-display: "Space Grotesk", sans-serif;
   --font-body: "IBM Plex Sans", sans-serif;
@@ -80,6 +86,10 @@
     --warn-ink: #F8C27A;
     --warn-ink-strong: #FCD9A8;
     --diagram-surface: #F2F4F7;
+    --shadow-raised:
+      0 1px 2px rgba(0, 0, 0, 0.30),
+      0 4px 8px -2px rgba(0, 0, 0, 0.35),
+      0 16px 32px -8px rgba(0, 0, 0, 0.50);
   }
 }
 :root[data-theme="dark"] {
@@ -105,6 +115,10 @@
   --warn-ink: #F8C27A;
   --warn-ink-strong: #FCD9A8;
   --diagram-surface: #F2F4F7;
+  --shadow-raised:
+    0 1px 2px rgba(0, 0, 0, 0.30),
+    0 4px 8px -2px rgba(0, 0, 0, 0.35),
+    0 16px 32px -8px rgba(0, 0, 0, 0.50);
 }
 
 * { box-sizing: border-box; }
@@ -190,44 +204,84 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
 .section-head { margin-bottom: var(--space-36); }
 .section-head h2 { font-size: 26px; }
 
-/* Trim — a hairline above the section title, invisible at rest. When the section is
-   reached through an in-page link (#projects), it draws in from the left and fades out. */
-.section-head, .badge-row { position: relative; }
-.section-head::before,
-.badge-row[id]::before {
+/* Trim — a pair of short azure bars under a title, like the two handles on a cabinet door.
+   Invisible at rest. When played, the bars grow outward from a 2px seam, then part 6px each
+   as if the doors were opening, hold, and fade. Absolutely positioned: the layout never moves.
+   Where it plays:
+   - section titles reached by an in-page link (#projects)        → .section:target
+   - the certification badges reached by #certifications          → .badge-row:target (below the row)
+   - project page titles, once on load                             → .trim.trim-on-load
+   - a project card's title when the card is clicked (page script) → .trim.trim-play */
+.section-head h2, .badge-row[id], .trim { position: relative; }
+.section-head h2::before, .section-head h2::after,
+.badge-row[id]::before, .badge-row[id]::after,
+.trim::before, .trim::after {
   content: "";
   position: absolute;
-  left: 0;
-  top: calc(-1 * var(--space-16));
-  width: 32px;
+  width: 18px;
   height: 2px;
   border-radius: 1px;
   background: var(--azure);
   opacity: 0;
   transform: scaleX(0);
-  transform-origin: left center;
 }
-.section:target .section-head::before,
-.badge-row:target::before {
-  animation: trim-flash 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+/* Closed: left bar 6–24px, 2px seam, right bar 26–44px. Open: 0–18px and 32–50px. */
+.section-head h2::before, .badge-row[id]::before, .trim::before { left: 6px;  transform-origin: right center; }
+.section-head h2::after,  .badge-row[id]::after,  .trim::after  { left: 26px; transform-origin: left center; }
+.section-head h2::before, .section-head h2::after,
+.trim::before, .trim::after { top: calc(100% + 6px); }
+.hero h1.trim::before, .hero h1.trim::after { top: calc(100% + 8px); }
+.badge-row[id]::before, .badge-row[id]::after { top: calc(100% + var(--space-14)); }
+
+.section:target .section-head h2::before,
+.badge-row:target::before,
+.trim.trim-on-load::before {
+  animation: trim-handle-left 2s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
 }
-/* Clicking the same link again: the page script toggles .trim-replay, which swaps to an
-   identical keyframe so the browser restarts the animation. */
-.section:target.trim-replay .section-head::before,
-.badge-row:target.trim-replay::before { animation-name: trim-flash-replay; }
-@keyframes trim-flash {
-  0%   { opacity: 0; transform: scaleX(0); }
-  30%  { opacity: 1; transform: scaleX(1); }
-  70%  { opacity: 1; transform: scaleX(1); }
-  100% { opacity: 0; transform: scaleX(1); }
+.section:target .section-head h2::after,
+.badge-row:target::after,
+.trim.trim-on-load::after {
+  animation: trim-handle-right 2s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
 }
-@keyframes trim-flash-replay {
-  0%   { opacity: 0; transform: scaleX(0); }
-  30%  { opacity: 1; transform: scaleX(1); }
-  70%  { opacity: 1; transform: scaleX(1); }
-  100% { opacity: 0; transform: scaleX(1); }
+/* Card click: only the draw-and-open part matters before the next page loads. */
+.trim.trim-play::before { animation: trim-handle-left 1.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.trim.trim-play::after  { animation: trim-handle-right 1.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
+/* Clicking the same in-page link again: the page script toggles .trim-replay, which swaps
+   to identical keyframes so the browser restarts the animation. */
+.section:target.trim-replay .section-head h2::before,
+.badge-row:target.trim-replay::before { animation-name: trim-handle-left-replay; }
+.section:target.trim-replay .section-head h2::after,
+.badge-row:target.trim-replay::after { animation-name: trim-handle-right-replay; }
+
+@keyframes trim-handle-left {
+  0%   { opacity: 0; transform: translateX(0) scaleX(0); }
+  25%  { opacity: 1; transform: translateX(0) scaleX(1); }
+  45%  { opacity: 1; transform: translateX(-6px) scaleX(1); }
+  80%  { opacity: 1; transform: translateX(-6px) scaleX(1); }
+  100% { opacity: 0; transform: translateX(-6px) scaleX(1); }
 }
-.section-head p { color: var(--ink-soft); margin-top: var(--space-8); max-width: var(--measure-section); }
+@keyframes trim-handle-right {
+  0%   { opacity: 0; transform: translateX(0) scaleX(0); }
+  25%  { opacity: 1; transform: translateX(0) scaleX(1); }
+  45%  { opacity: 1; transform: translateX(6px) scaleX(1); }
+  80%  { opacity: 1; transform: translateX(6px) scaleX(1); }
+  100% { opacity: 0; transform: translateX(6px) scaleX(1); }
+}
+@keyframes trim-handle-left-replay {
+  0%   { opacity: 0; transform: translateX(0) scaleX(0); }
+  25%  { opacity: 1; transform: translateX(0) scaleX(1); }
+  45%  { opacity: 1; transform: translateX(-6px) scaleX(1); }
+  80%  { opacity: 1; transform: translateX(-6px) scaleX(1); }
+  100% { opacity: 0; transform: translateX(-6px) scaleX(1); }
+}
+@keyframes trim-handle-right-replay {
+  0%   { opacity: 0; transform: translateX(0) scaleX(0); }
+  25%  { opacity: 1; transform: translateX(0) scaleX(1); }
+  45%  { opacity: 1; transform: translateX(6px) scaleX(1); }
+  80%  { opacity: 1; transform: translateX(6px) scaleX(1); }
+  100% { opacity: 0; transform: translateX(6px) scaleX(1); }
+}
+.section-head p { color: var(--ink-soft); margin-top: var(--space-14); max-width: var(--measure-section); }
 
 /* Project card */
 .card-grid { display: grid; gap: var(--space-20); }
@@ -235,32 +289,16 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
   display: block; color: inherit;
   background: var(--surface); border: var(--border-hairline) solid var(--line); border-radius: var(--radius);
   padding: var(--space-28);
-  position: relative;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease;
 }
 .project-card:hover,
 .project-card:focus-visible {
   border-color: var(--azure);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-raised);
   text-decoration: none;
   color: inherit;
 }
-/* Card trim — sits on the top edge, aligned with the title, and draws in while the card is hovered or focused. */
-.project-card::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  left: var(--space-28);
-  width: 32px;
-  height: 2px;
-  border-radius: 0 0 1px 1px;
-  background: var(--azure);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.project-card:hover::before,
-.project-card:focus-visible::before { transform: scaleX(1); }
 .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-16); margin-bottom: var(--space-12); }
 .card-top h3 { font-size: 19px; }
 .project-card p { color: var(--ink-soft); font-size: 15px; margin: 0 0 var(--space-16); }
@@ -331,10 +369,12 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
   html { scroll-behavior: auto; }
   .project-card { transition: none; }
   .project-card:hover, .project-card:focus-visible { transform: none; }
-  .project-card::before { transition: none; }
   .eyebrow::before { animation: none; }
-  .section:target .section-head::before,
-  .badge-row:target::before { animation: none; }
+  .section:target .section-head h2::before,
+  .section:target .section-head h2::after,
+  .badge-row:target::before,
+  .badge-row:target::after,
+  .trim::before, .trim::after { animation: none; }
 }
 
 @media (max-width: 640px) {

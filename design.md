@@ -10,7 +10,7 @@
 1. **证据先于修饰。** 页面像一份审计报告：状态、指标、截图、决策记录。不用插画、渐变、阴影来制造氛围。
 2. **一种品牌色。** `azure` 承担链接、主按钮、眉标、数字；其它颜色都只是信号（`verified` = 已完成，`warn` = 进行中）。
 3. **Mono 即元数据。** 凡是“可被机器核对”的信息——认证名、技术栈、状态、表头、meta——都用 `mono` 族。人写的叙述用 `body` 族。
-4. **描边而非阴影。** 层级靠 `line` 1px 描边与 `surface` / `bg` 的明度差建立，整个系统没有 box-shadow。
+4. **描边为主，阴影只为交互。** 层级靠 `line` 1px 描边与 `surface` / `bg` 的明度差建立；唯一的阴影 `shadow-raised` 只在项目卡片被悬停或聚焦时出现，没有任何元素常驻阴影。
 
 ## 内容基础
 
@@ -51,28 +51,31 @@
 
 - 所有容器圆角 `radius`（10px）；tag 用 `radius-sm`（6px）；badge 与 pill 用 `radius-pill`。
 - 描边统一 `border-hairline`（1px）。唯一的粗边是 `note-box` 左侧 `border-accent`（3px `azure`），只用于“方法/限制说明”，不要推广到其它卡片。
-- 无阴影（曾试过多层悬停阴影，效果不明显，已舍弃）。需要抬升感时用 hover：`border-color: azure` + `translateY(-2px)` + trim。
+- 阴影只有一个：`shadow-raised`，三层叠加（1px 贴边影 + 4px 柔影 + 16px 带一点 azure 的弥散影；dark 主题换为更深的黑色），只用于项目卡片 hover / focus-visible，配合 `border-color: azure` + `translateY(-2px)`。不要给静态容器、按钮或 callout 加阴影。
 
 ## 交互状态
 
-- **Hover：** 链接 `azure` → `azure-bright` 并加下划线；导航链接只变色不加下划线；项目卡片描边变 `azure`、上移 2px，并在顶边画出 trim；次按钮描边与文字变 `azure`。
-- **Focus：** 所有可聚焦元素 `focus-ring`（2px）实线 `azure-bright` 外框，offset 2px；在 `bg`、`surface` 上均 ≥3:1。键盘聚焦项目卡片时同样画出 trim。
+- **Hover：** 链接 `azure` → `azure-bright` 并加下划线；导航链接只变色不加下划线；项目卡片描边变 `azure`、上移 2px 并浮起 `shadow-raised`；次按钮描边与文字变 `azure`。
+- **Focus：** 所有可聚焦元素 `focus-ring`（2px）实线 `azure-bright` 外框，offset 2px；在 `bg`、`surface` 上均 ≥3:1。键盘聚焦项目卡片时同样浮起阴影。
 - **动效：** 0.2s ease 的描边/位移过渡、平滑滚动，以及下面的 trim 动画；`prefers-reduced-motion: reduce` 时全部关闭。
 
 ## Trim
 
-Trim 是本系统唯一的“强调动效”：一条 2px 高、32px 长的 `azure` 细线，从左向右画出（`transform: scaleX`，`transform-origin: left`，缓动 `cubic-bezier(0.22, 1, 0.36, 1)`）。它和 eyebrow 前的 18px 短横线是同一个母题。用它代替阴影来提示“这里是焦点”。
+Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉手：标题下方一对 2px × 18px 的 `azure` 短条，中间一道 2px 门缝。播放时两段从门缝向两侧画出（`scaleX`），再各向外分开 6px（门缝变 14px），像柜门被打开，停留后淡出。缓动 `cubic-bezier(0.22, 1, 0.36, 1)`。它表示“这里被打开了 / 你到了这里”。
 
-| 位置 | 触发 | 行为 |
+| 位置 | 触发 | 时长 |
 |---|---|---|
-| 项目卡片顶边，左侧与标题对齐（`left: space-28`，`top: -1px`） | hover / focus-visible | 0.45s 画出，离开时收回 |
-| hero eyebrow 前的短横线 | 页面加载 | 延迟 0.2s，0.9s 画出，只播一次 |
-| section 标题上方 16px（`.section:target .section-head`） | 站内锚点跳转（如 #projects） | 延迟 0.35s，1.6s 内画出、停留、淡出 |
-| 认证 badge 行上方（`.badge-row:target`，#certifications） | 站内锚点跳转 | 同上 |
+| section 标题下方 6px（`.section:target .section-head h2`：Projects、About） | 站内锚点跳转 | 延迟 0.35s，2s 内画出、打开、停留、淡出 |
+| 认证 badge 行下方 14px（`.badge-row:target`，#certifications） | 站内锚点跳转 | 同上 |
+| 项目页 hero 标题下方 8px（`h1.trim.trim-on-load`） | 页面加载 | 同上，只播一次 |
+| 项目卡片标题下方（`h3.trim.trim-play`） | 点击卡片 | 1.2s；画出并打开后约 0.6s 跳转到项目页，项目页标题接着再打开一次 |
 
-- 静止时不可见，不占布局（绝对定位），所以不改变页面排版。
-- 重复点击同一个锚点时，页面脚本切换 `.trim-replay`，换用相同内容的 `trim-flash-replay` 关键帧来重播。
-- 只用于“刚被到达或正被交互”的元素：不要给静态内容常驻 trim，不要换颜色，一屏同时最多一条在动。
+另有 hero eyebrow 前 18px 短横线的开场画出（0.2s 延迟、0.9s），是同一母题的单线版本。
+
+- 静止时不可见，绝对定位，不改变排版；section 标题与说明之间为此留 `space-14`。
+- 重复点击同一锚点：页面脚本切换 `.trim-replay`，换用内容相同的 `*-replay` 关键帧来重播。
+- 点击卡片的延迟只对普通左键生效；Cmd / Ctrl / Shift 点击与 `prefers-reduced-motion` 直接跳转，不播放。浏览器“返回”时 `pageshow` 复位卡片。
+- 只给“刚被到达或打开”的标题用：不常驻、不换色、不加粗，一屏同时最多一对在动。
 
 ## 图像与图表
 
@@ -99,7 +102,9 @@ Trim 是本系统唯一的“强调动效”：一条 2px 高、32px 长的 `azu
 - 把项目页内联样式（`kpi`、`note-box`、`evidence`）收进组件。
 - 形成完整的间距、圆角、布局 token，并加入 `prefers-reduced-motion` 处理。
 - 状态词规范：用 `IN PROGRESS` 替代 “Loading...”。
-- Trim 强调动效：卡片悬停、hero 开场、锚点跳转（见 Trim 一节）。
+- Trim 强调动效（柜门拉手式）：锚点跳转、项目页标题、点击卡片（见 Trim 一节）。
+- 卡片悬停多层阴影 `shadow-raised`。
+- 导航新增 About 锚点。
 
 
 ## Token 参考
@@ -160,10 +165,10 @@ Trim 是本系统唯一的“强调动效”：一条 2px 高、32px 长的 `azu
 |---|---|---|
 | `--space-4` | `4px` | status pill 纵向内边距；decision-list 标题下间距。 |
 | `--space-6` | `6px` | badge 纵向内边距、badge 字形间隙、KPI 标签上间距。 |
-| `--space-8` | `8px` | tag 间距、section-head p 上间距。 |
+| `--space-8` | `8px` | tag 间距。 |
 | `--space-10` | `10px` | badge 间距、eyebrow 横线间隙、pill 横向内边距、表头纵向内边距。 |
 | `--space-12` | `12px` | badge 横向内边距、卡片标题下间距、表格单元格纵向内边距。 |
-| `--space-14` | `14px` | CTA 间距、KPI 网格间距、表格单元格横向内边距。 |
+| `--space-14` | `14px` | CTA 间距、KPI 网格间距、表格单元格横向内边距、section 标题与说明的间距（给 trim 留位）、badge 行下 trim 的位置。 |
 | `--space-16` | `16px` | 卡片内段落/tag 行下间距、decision-list 行内边距、callout 纵向内边距。 |
 | `--space-18` | `18px` | eyebrow 下间距、KPI 横向内边距。 |
 | `--space-20` | `20px` | 卡片网格间距、按钮横向内边距、导语上间距、callout 横向内边距、内容块上边距。 |
@@ -184,6 +189,12 @@ Trim 是本系统唯一的“强调动效”：一条 2px 高、32px 长的 `azu
 | `--radius-sm` | `6px` | tag。 |
 | `--radius-pill` | `999px` | badge 与 status pill。 |
 | `--radius-round` | `50%` | progress-banner 的状态圆点。 |
+
+### 阴影
+
+| Token | Light | Dark | 用途 |
+|---|---|---|---|
+| `--shadow-raised` | `0 1px 2px rgba(16,24,40,.04), 0 4px 8px -2px rgba(16,24,40,.06), 0 16px 32px -8px rgba(17,94,163,.12)` | `0 1px 2px rgba(0,0,0,.30), 0 4px 8px -2px rgba(0,0,0,.35), 0 16px 32px -8px rgba(0,0,0,.50)` | 项目卡片 hover / focus-visible，唯一的阴影。 |
 
 ### 布局
 
@@ -227,6 +238,7 @@ Trim 是本系统唯一的“强调动效”：一条 2px 高、32px 长的 `azu
 | `SiteFooter` | Layout | 页脚：版权与 GitHub / LinkedIn / Email 链接，用 “·” 分隔。 |
 | `SiteNav` | Layout | 顶部 sticky 导航：左侧文字标 HanqinLyu，右侧 2–3 个文字链接。 |
 | `StatusPill` | Identity | 项目卡片右上角的状态胶囊：一个大写单词说明项目对安全做了什么。 |
+| `Trim` | Motion | 柜门拉手式强调动效：标题下一对短条，打开后淡出。 |
 | `Tag` | Identity | 项目卡片底部的技术关键词，比 badge 更轻。 |
 
 每个组件的完整用法见在线版；类名与样式见 `style.css`（补充项的 token 化版本见在线版 `components/bundle.css`）。
