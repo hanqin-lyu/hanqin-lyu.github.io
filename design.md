@@ -51,13 +51,28 @@
 
 - 所有容器圆角 `radius`（10px）；tag 用 `radius-sm`（6px）；badge 与 pill 用 `radius-pill`。
 - 描边统一 `border-hairline`（1px）。唯一的粗边是 `note-box` 左侧 `border-accent`（3px `azure`），只用于“方法/限制说明”，不要推广到其它卡片。
-- 无阴影。需要抬升感时用 hover：`border-color: azure` + `translateY(-2px)`。
+- 无阴影（曾试过多层悬停阴影，效果不明显，已舍弃）。需要抬升感时用 hover：`border-color: azure` + `translateY(-2px)` + trim。
 
 ## 交互状态
 
-- **Hover：** 链接 `azure` → `azure-bright` 并加下划线；导航链接只变色不加下划线；项目卡片描边变 `azure` 并上移 2px；次按钮描边与文字变 `azure`。
-- **Focus：** 所有可聚焦元素 `focus-ring`（2px）实线 `azure-bright` 外框，offset 2px；在 `bg`、`surface` 上均 ≥3:1。
-- **动效：** 只有 0.15s ease 的描边/位移过渡与平滑滚动；`prefers-reduced-motion: reduce` 时全部关闭（补充）。
+- **Hover：** 链接 `azure` → `azure-bright` 并加下划线；导航链接只变色不加下划线；项目卡片描边变 `azure`、上移 2px，并在顶边画出 trim；次按钮描边与文字变 `azure`。
+- **Focus：** 所有可聚焦元素 `focus-ring`（2px）实线 `azure-bright` 外框，offset 2px；在 `bg`、`surface` 上均 ≥3:1。键盘聚焦项目卡片时同样画出 trim。
+- **动效：** 0.2s ease 的描边/位移过渡、平滑滚动，以及下面的 trim 动画；`prefers-reduced-motion: reduce` 时全部关闭。
+
+## Trim
+
+Trim 是本系统唯一的“强调动效”：一条 2px 高、32px 长的 `azure` 细线，从左向右画出（`transform: scaleX`，`transform-origin: left`，缓动 `cubic-bezier(0.22, 1, 0.36, 1)`）。它和 eyebrow 前的 18px 短横线是同一个母题。用它代替阴影来提示“这里是焦点”。
+
+| 位置 | 触发 | 行为 |
+|---|---|---|
+| 项目卡片顶边，左侧与标题对齐（`left: space-28`，`top: -1px`） | hover / focus-visible | 0.45s 画出，离开时收回 |
+| hero eyebrow 前的短横线 | 页面加载 | 延迟 0.2s，0.9s 画出，只播一次 |
+| section 标题上方 16px（`.section:target .section-head`） | 站内锚点跳转（如 #projects） | 延迟 0.35s，1.6s 内画出、停留、淡出 |
+| 认证 badge 行上方（`.badge-row:target`，#certifications） | 站内锚点跳转 | 同上 |
+
+- 静止时不可见，不占布局（绝对定位），所以不改变页面排版。
+- 重复点击同一个锚点时，页面脚本切换 `.trim-replay`，换用相同内容的 `trim-flash-replay` 关键帧来重播。
+- 只用于“刚被到达或正被交互”的元素：不要给静态内容常驻 trim，不要换颜色，一屏同时最多一条在动。
 
 ## 图像与图表
 
@@ -84,6 +99,7 @@
 - 把项目页内联样式（`kpi`、`note-box`、`evidence`）收进组件。
 - 形成完整的间距、圆角、布局 token，并加入 `prefers-reduced-motion` 处理。
 - 状态词规范：用 `IN PROGRESS` 替代 “Loading...”。
+- Trim 强调动效：卡片悬停、hero 开场、锚点跳转（见 Trim 一节）。
 
 
 ## Token 参考

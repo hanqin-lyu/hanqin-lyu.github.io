@@ -138,5 +138,15 @@
   </div>
 </footer>
 
+<script>
+  // Replay the section trim when the link to the section you are already on is clicked again.
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('a[href^="#"]');
+    if (!link || link.getAttribute('href') !== location.hash) return;
+    var target = document.getElementById(location.hash.slice(1));
+    if (target) target.classList.toggle('trim-replay');
+  });
+</script>
+
 </body>
 </html>

@@ -143,7 +143,15 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
   font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--azure); display: flex; align-items: center; gap: var(--space-10); margin-bottom: var(--space-18);
 }
-.eyebrow::before { content: ""; width: 18px; height: var(--border-hairline); background: var(--azure); }
+.eyebrow::before {
+  content: ""; width: 18px; height: var(--border-hairline); background: var(--azure);
+  transform-origin: left center;
+  animation: trim-draw 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+@keyframes trim-draw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
 
 /* Hero */
 .hero { padding: var(--space-96) 0 var(--space-64); border-bottom: var(--border-hairline) solid var(--line); }
@@ -181,6 +189,44 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
 .section:last-of-type { border-bottom: none; }
 .section-head { margin-bottom: var(--space-36); }
 .section-head h2 { font-size: 26px; }
+
+/* Trim — a hairline above the section title, invisible at rest. When the section is
+   reached through an in-page link (#projects), it draws in from the left and fades out. */
+.section-head, .badge-row { position: relative; }
+.section-head::before,
+.badge-row[id]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(-1 * var(--space-16));
+  width: 32px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--azure);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.section:target .section-head::before,
+.badge-row:target::before {
+  animation: trim-flash 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+/* Clicking the same link again: the page script toggles .trim-replay, which swaps to an
+   identical keyframe so the browser restarts the animation. */
+.section:target.trim-replay .section-head::before,
+.badge-row:target.trim-replay::before { animation-name: trim-flash-replay; }
+@keyframes trim-flash {
+  0%   { opacity: 0; transform: scaleX(0); }
+  30%  { opacity: 1; transform: scaleX(1); }
+  70%  { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(1); }
+}
+@keyframes trim-flash-replay {
+  0%   { opacity: 0; transform: scaleX(0); }
+  30%  { opacity: 1; transform: scaleX(1); }
+  70%  { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(1); }
+}
 .section-head p { color: var(--ink-soft); margin-top: var(--space-8); max-width: var(--measure-section); }
 
 /* Project card */
@@ -188,9 +234,33 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
 .project-card {
   display: block; color: inherit;
   background: var(--surface); border: var(--border-hairline) solid var(--line); border-radius: var(--radius);
-  padding: var(--space-28); transition: border-color 0.15s ease, transform 0.15s ease;
+  padding: var(--space-28);
+  position: relative;
+  transition: border-color 0.2s ease, transform 0.2s ease;
 }
-.project-card:hover { border-color: var(--azure); transform: translateY(-2px); text-decoration: none; color: inherit; }
+.project-card:hover,
+.project-card:focus-visible {
+  border-color: var(--azure);
+  transform: translateY(-2px);
+  text-decoration: none;
+  color: inherit;
+}
+/* Card trim — sits on the top edge, aligned with the title, and draws in while the card is hovered or focused. */
+.project-card::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: var(--space-28);
+  width: 32px;
+  height: 2px;
+  border-radius: 0 0 1px 1px;
+  background: var(--azure);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.project-card:hover::before,
+.project-card:focus-visible::before { transform: scaleX(1); }
 .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-16); margin-bottom: var(--space-12); }
 .card-top h3 { font-size: 19px; }
 .project-card p { color: var(--ink-soft); font-size: 15px; margin: 0 0 var(--space-16); }
@@ -260,7 +330,11 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .project-card { transition: none; }
-  .project-card:hover { transform: none; }
+  .project-card:hover, .project-card:focus-visible { transform: none; }
+  .project-card::before { transition: none; }
+  .eyebrow::before { animation: none; }
+  .section:target .section-head::before,
+  .badge-row:target::before { animation: none; }
 }
 
 @media (max-width: 640px) {
