@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Closed-Loop SOC on Azure — Sentinel Detection &amp; SOAR Response</title>
+<meta name="description" content="A honeypot feeds Microsoft Sentinel; KQL detections mapped to MITRE ATT&CK raise incidents; ten Logic Apps playbooks enrich, notify, block, contain and close — the whole loop deployed as Terraform through a reviewed pipeline.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .evidence { margin: 20px 0 8px; }
+  .evidence img {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    display: block;
+  }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin: 28px 0 8px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .kpi b { display: block; font-family: var(--font-display); font-size: 28px; color: var(--azure); line-height: 1.1; }
+  .kpi span { display: block; margin-top: 6px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.4; }
+  .note-box { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--azure); border-radius: var(--radius); padding: 16px 20px; margin: 20px 0 8px; }
+  .note-box p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+  .note-box strong { color: var(--ink); }
+  .stack-table, .metrics-table { display: block; overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <div class="nav-mark">Hanqin<span>Lyu</span></div>
+    <div class="nav-links">
+      <a href="../index.html#projects">All projects</a>
+      <a href="https://github.com/hanqin-lyu/project-Sentinel-SOC">Repo</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" style="padding-bottom:48px;">
+  <div class="wrap">
+    <div class="eyebrow">Project / Detection &amp; Response</div>
+    <h1 class="trim trim-on-load" style="max-width:24ch;">Closed-Loop SOC on Azure: Sentinel Detection &amp; SOAR Response</h1>
+    <p class="lede">An SSH honeypot, deliberately exposed in an isolated network, feeds Microsoft Sentinel.
+      Hand-written KQL detections mapped to MITRE ATT&amp;CK raise incidents, and ten Logic Apps playbooks
+      run every response step — enrich, notify, block, contain, close — so the loop from an attack to a
+      contained, documented incident runs on its own, and every action leaves evidence. All of it is
+      Terraform, deployed through the same reviewed pipeline as my guardrails project.</p>
+    <div class="badge-row">
+      <span class="badge azure">Microsoft Sentinel</span>
+      <span class="badge azure">KQL</span>
+      <span class="badge azure">MITRE ATT&amp;CK</span>
+      <span class="badge azure">Logic Apps (SOAR)</span>
+      <span class="badge azure">Azure Monitor Agent</span>
+      <span class="badge azure">Key Vault</span>
+      <span class="badge azure">Terraform (AVM)</span>
+      <span class="badge azure">GitHub Actions OIDC</span>
+    </div>
+    <div class="meta-row">
+      <span>SC-200 aligned</span>
+      <span>·</span>
+      <span>Deployed &amp; validated end to end</span>
+      <span>·</span>
+      <span>Updated Nov 2026</span>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Overview</h2>
+    </div>
+    <p style="color:var(--ink-soft); max-width:70ch;">
+      The lab is one closed loop. An Ubuntu honeypot with only port 22 open, and an identity that holds no
+      roles, forwards its syslog to a Log Analytics workspace through the Azure Monitor Agent and a data
+      collection rule. Four scheduled KQL rules watch that telemetry; when one fires, Sentinel raises an
+      incident and an automation rule starts the playbooks that answer it.
+    </p>
+    <p style="color:var(--ink-soft); max-width:70ch;">
+      The question behind the project: <strong style="color:var(--ink);">once a honeypot is compromised, how
+      much of the response can run without a human — safely — and how do you prove each step actually
+      happened?</strong> The answer here is a set of single-job Logic Apps playbooks: automatic ones do only
+      safe, reversible steps (enrich, notify, block with a 24-hour expiry), and disruptive ones (end the
+      session, lock the account) are manual, run by the analyst from the incident. Every run leaves a run
+      history and an incident comment, so the triage report writes itself from evidence.
+    </p>
+
+    <div class="kpi-row">
+      <div class="kpi"><b>4</b><span>KQL detections live, mapped to MITRE ATT&amp;CK (one per priority P1–P4)</span></div>
+      <div class="kpi"><b>10</b><span>Logic Apps playbooks (PB1–PB10), one job each, deployed as code</span></div>
+      <div class="kpi"><b>24 h</b><span>auto-expiring NSG block, then an hourly playbook removes it</span></div>
+      <div class="kpi"><b>0</b><span>roles on the honeypot identity; 0 third-party secrets in the repo</span></div>
+    </div>
+
+    <p style="color:var(--ink-soft); max-width:70ch; margin-top:28px;">
+      Validated end to end on real telemetry: a brute-force run from a network outside the management range
+      raised the Low, Medium and High incidents below; the High incident auto-blocked the attacker at the
+      NSG, logged the block with its expiry, enriched the source against AbuseIPDB, and posted to Slack —
+      all before I touched it.
+    </p>
+
+    <div class="evidence">
+      <img src="images/soc-workbook-overview.png" alt="SOC closed-loop overview workbook in the Azure portal: a donut showing 10 incidents by severity (5 Low, 4 High, 1 Medium) and a stacked bar chart of new incidents over time, built over the SecurityIncident, Syslog and SOARBlocks_CL tables" loading="lazy">
+      <p class="diagram-caption">The SOC overview workbook, built in Terraform over the same tables the rules and playbooks already write — incidents by severity and over time, failed logins per hour, top source IPs, and active blocks. Counts are from the validation runs.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Module 1: Detections — four KQL rules, one per priority, mapped to ATT&amp;CK</h2>
+      <p>The early plan had six rules; two added noise without adding signal and were dropped. What remains is one rule per response priority, each tied to a MITRE technique.</p>
+    </div>
+    <table class="stack-table">
+      <thead>
+        <tr><th>Rule</th><th>Severity / priority</th><th>MITRE ATT&amp;CK</th><th>What it catches</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>R2 Compromise after brute force</td><td>High · P1</td><td>T1078 Valid Accounts, T1021 Remote Services</td><td>An accepted SSH login from an IP that has a day of brute force behind it — a likely compromise</td></tr>
+        <tr><td>R4 Sudo probing</td><td>Medium · P2</td><td>T1548 Abuse Elevation Control</td><td>A logged-in decoy account trying <code>sudo</code> it is not entitled to</td></tr>
+        <tr><td>R5 Sustained brute force</td><td>Low · P3</td><td>T1110 Brute Force</td><td>A high volume of failed logins from one source with no success — reconnaissance pressure</td></tr>
+        <tr><td>R1 SSH brute force</td><td>Informational · P4</td><td>T1110 Brute Force</td><td>Alert only, no incident; feeds the workbook's failed-login trend</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note-box">
+      <p><strong>Count by ingestion time, not event time.</strong> Each rule runs every 10 minutes over its
+      "last 10 minutes." My first R5 test caught nothing: syslog reaches the workspace a minute or two after
+      the login happens, so a window filtered on <code>TimeGenerated</code> runs <em>before</em> the rows land
+      and then slides past them — a short attack is missed entirely. Filtering on <code>ingestion_time()</code>
+      instead (and widening R1's lookback to 20 minutes) means late rows are still inside the window. The
+      24-hour brute-force history still uses <code>TimeGenerated</code>, where a 90-second delay is irrelevant.
+      It is the kind of bug a rule only reveals under a real burst, not in a hand-run query.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Module 2: The closed loop — ten playbooks, each a single job</h2>
+      <p>One automation rule per detection starts that rule's automatic playbooks and changes nothing on the incident itself. Disruptive steps are manual, because running one is a human decision.</p>
+    </div>
+    <div class="diagram-block">
+      <pre class="mermaid">
+flowchart LR
+    HP["Honeypot<br/>syslog via AMA"] --> LAW["Log Analytics<br/>+ Sentinel"]
+    LAW --> R{"KQL rule<br/>fires"}
+    R --> INC["Incident<br/>raised"]
+    INC --> AR["Automation rule"]
+    AR --> PB1["PB1 Enrich<br/>AbuseIPDB"]
+    AR --> PB45["PB2/3/4 Notify<br/>Slack + SLA"]
+    AR --> PB5["PB5 Block IP<br/>NSG + log, 24h TTL"]
+    PB5 --> PB6["PB6 Unblock<br/>hourly, on expiry"]
+    INC -.analyst.-> PB7["PB7 Contain host<br/>Run Command"]
+    INC -.analyst.-> PB89["PB8/PB9<br/>Report + Close"]
+    PBX["PB10 Failure handler<br/>hourly poll"] -.watches.-> AR
+      </pre>
+    </div>
+    <p class="diagram-caption">Solid arrows run automatically; dashed arrows are the analyst's decision. PB10 polls every playbook's run history and raises an alert and incident comment if any run failed.</p>
+
+    <table class="stack-table">
+      <thead>
+        <tr><th>ID</th><th>Playbook</th><th>Kind</th><th>Job</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>PB1</td><td>Enrichment</td><td>Automatic</td><td>Look up the attacker IP in AbuseIPDB and comment the reputation on the incident</td></tr>
+        <tr><td>PB2 / PB3</td><td>Notify P2 / P3</td><td>Automatic</td><td>Comment the acknowledge-by time and post Slack, linking the matching SLA doc</td></tr>
+        <tr><td>PB4</td><td>Notify P1</td><td>Automatic</td><td>Post the Slack message (PB5 is already blocking on the same incident)</td></tr>
+        <tr><td>PB5</td><td>Block IP</td><td>Automatic</td><td>Add the IP to the NSG block rule and log it with a 24-hour expiry; skip private, trusted and already-blocked IPs</td></tr>
+        <tr><td>PB6</td><td>Block expiry</td><td>Automatic (hourly)</td><td>Remove blocks past their expiry, log the unblock, comment on the incident</td></tr>
+        <tr><td>PB7</td><td>Contain host</td><td>Manual</td><td>End the attacker's SSH session and lock the account through Azure Run Command</td></tr>
+        <tr><td>PB8 / PB9</td><td>Report / Close</td><td>Manual</td><td>Draft the triage report from incident facts; set the classification and closing reason</td></tr>
+        <tr><td>PB10</td><td>Failure handler</td><td>Automatic (hourly)</td><td>Detect any failed playbook run, alert Slack, and comment on the incident it came from</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note-box">
+      <p><strong>Logic Apps has no "another workflow failed" trigger</strong>, so PB10 polls: every hour it lists
+      the automation group's workflows with its managed identity, reads each one's runs that failed in the last
+      hour, skips its own name so it never alerts on itself, and — for a failure that came from an incident —
+      recovers the incident id from the failed run's short-lived trigger link to comment on the right case. A
+      self-contained watchdog, at the cost of up to an hour's delay.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Module 3: Containment and least privilege — each identity does one job</h2>
+      <p>No person edits an incident, the NSG or the VM directly; they run a manual playbook. Each playbook's managed identity holds only the role its job needs, at the smallest scope, and every assignment is Terraform.</p>
+    </div>
+    <table class="stack-table">
+      <thead>
+        <tr><th>Identity</th><th>Role</th><th>Scope</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>PB1 / PB2–4 / PB8–10 (comment, enrich, notify)</td><td>Microsoft Sentinel Responder (+ Key Vault Secrets User for secrets)</td><td><code>rg-soc-sentinel</code> / the playbook Key Vault only</td></tr>
+        <tr><td>PB5 Block IP, PB6 Unblock</td><td>Network Contributor + Monitoring Metrics Publisher</td><td>The single <code>SOAR-Block-Attackers</code> rule and the block-log DCR only</td></tr>
+        <tr><td>PB7 Contain host</td><td>Virtual Machine Contributor</td><td>The honeypot VM only</td></tr>
+        <tr><td>Honeypot VM identity</td><td>— none —</td><td>No role assignments anywhere</td></tr>
+      </tbody>
+    </table>
+
+    <ul class="decision-list">
+      <li><strong>Blocks expire; a session does not end itself</strong>
+        <span>PB5 writes each block with a 24-hour expiry to a custom <code>SOARBlocks_CL</code> table through the Logs Ingestion API; PB6 finds expired rows with KQL and lifts them. But an NSG change does not drop an established SSH session, which is exactly why ending the session is a separate <em>manual</em> playbook (PB7, over Run Command), not something that happens silently.</span></li>
+      <li><strong>The block rule lives outside the AVM NSG module</strong>
+        <span>The playbook edits that one rule at run time, so Terraform creates it once and ignores its address list — a later <code>apply</code> never wipes a real, in-force block.</span></li>
+      <li><strong>Honeypot isolation is a hard rule</strong>
+        <span>The VM's identity has no roles, port 22 is the only intentionally open inbound port, and the Azure Policy exemption for that open port lives in a separate control-plane state the owner applies by hand — never through the pipeline.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Module 4: Same pipeline, and the honest findings of a portal-integrated Sentinel</h2>
+      <p>Everything is one Terraform root with one state, deployed by the same CI/CD design as my guardrails project: a read-only identity plans on every PR; a read-write identity applies only after I approve the environment. Running it against a Defender-portal Sentinel surfaced three things worth recording.</p>
+    </div>
+    <ul class="decision-list">
+      <li><strong>Priority is severity, not a label</strong>
+        <span>The notifiers first tried to stamp a <code>P1</code>/<code>P2</code>/<code>P3</code> label on the incident. The label never stuck: because the workspace is used in the Defender portal, the incident is a Defender case that XDR re-syncs and overwrites — a <code>PUT</code> returned success yet left the label empty. So the label step was dropped and priority is carried by the incident <em>severity</em> (High/Medium/Low), which sorts and filters natively, plus the Slack message and comment. The playbooks got simpler and nothing was lost.</span></li>
+      <li><strong>The Playbooks tab's "missing permissions" is a false positive</strong>
+        <span>The portal probe does not detect the Automation Contributor grant made through IaC, so it warns on every playbook even though the role is present and playbooks run. Clicking "Configure permissions" would create a second, portal-managed assignment that drifts from Terraform — so the fix is to leave it alone and verify with <code>az role assignment list</code> instead.</span></li>
+      <li><strong>One attack can race into two incidents</strong>
+        <span>R2 re-runs every 10 minutes and the validation login happened twice from one IP, so two alerts fired and grouping-by-IP folded most but not a near-simultaneous pair; the portal then merged them. Diagnosed as a test and merge artifact, not a rule bug — a real compromise has one successful login — so no code change was warranted. Writing down why I <em>didn't</em> change the rule mattered as much as the fixes.</span></li>
+    </ul>
+
+    <div class="note-box">
+      <p><strong>Verified from KQL, not portal clicks.</strong> The Defender portal's incident and run-history pages
+      are slow to the point of hanging, so I checked lab state — incidents raised, blocks written, unblocks logged,
+      a forced playbook failure caught by PB10 — with queries over <code>SecurityIncident</code>,
+      <code>Syslog</code> and <code>SOARBlocks_CL</code>, the same tables the workbook reads. Fast, repeatable, and
+      the query is itself the evidence.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>What this project demonstrates</h2>
+    </div>
+    <ul class="decision-list">
+      <li><strong>1. Detection engineering with evidence, not assumption</strong>
+        <span>Four KQL rules mapped to MITRE ATT&amp;CK, each exercised by a real brute-force run, including a windowing bug that only a live burst reveals — and the discipline to drop two rules that added noise.</span></li>
+      <li><strong>2. SOAR that is safe by construction</strong>
+        <span>Ten single-job playbooks split into automatic-and-reversible versus manual-and-disruptive, auto-expiring blocks, and a watchdog that catches a playbook failing. Automation does the safe work; a human owns the destructive calls.</span></li>
+      <li><strong>3. Least privilege, written as code</strong>
+        <span>Every playbook identity holds one built-in role at the smallest scope, the honeypot identity holds none, and all of it is in the Terraform plan and diff — no custom roles, no standing secrets.</span></li>
+      <li><strong>4. Honest operations</strong>
+        <span>A label that silently doesn't persist, a portal warning that's a false positive, a duplicate incident that's a test artifact — each diagnosed, decided and documented rather than hidden behind a green dashboard.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Questions &amp; Answers</h2>
+    </div>
+    <ul class="decision-list">
+      <li><strong>Why a honeypot instead of replayed logs?</strong>
+        <span>Real attackers hit an exposed SSH port within hours, so the telemetry is genuine and the timing is real. It also forces the isolation discipline — an identity with no roles, one open port, a policy exemption applied outside the pipeline — that a log replay would let me skip.</span></li>
+      <li><strong>Why log blocks to a custom table instead of just commenting?</strong>
+        <span>Incident comments can't be queried across incidents. A <code>SOARBlocks_CL</code> table lets PB6 find every expired block with one KQL query and feeds the workbook's active-blocks panel. The NSG rule is still what actually blocks; the table is the ledger.</span></li>
+      <li><strong>Why is containment manual when blocking is automatic?</strong>
+        <span>Blocking an IP at the NSG is reversible and expires on its own. Ending a live session and locking an account is disruptive and can hit the wrong person, so it needs a human decision — and the run history records who contained what and when.</span></li>
+      <li><strong>How are third-party secrets kept out of the repo?</strong>
+        <span>The AbuseIPDB key and the Slack webhook URL live in Key Vault; Terraform creates the vault and grants each playbook Key Vault Secrets User, but the values are set by hand with the CLI. A playbook reads its secret at run time with its managed identity and marks that step secure, so the value never appears in the run history.</span></li>
+      <li><strong>Why one Terraform root instead of per-stack states?</strong>
+        <span>The first design had three stacks with separate state, which needed cross-stack lookups and a job to decide which stack a change touched. One root and one state removes all of that — <code>terraform plan</code> already compares the code with what's deployed and orders the changes itself.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Known gaps</h2>
+      <p>Stated openly so the scope of the claims is clear.</p>
+    </div>
+    <ul class="decision-list">
+      <li><strong>One honeypot, one workspace</strong>
+        <span>Collection is a single Azure VM into one Log Analytics workspace. Multi-workspace and multi-cloud collection are deliberately out of scope — they belong to the follow-on project.</span></li>
+      <li><strong>Detection is rule-based</strong>
+        <span>All four detections are hand-written KQL. There is no ML anomaly detection or threat hunting here; that is the explicit next step.</span></li>
+      <li><strong>PB10 is polling, not real-time</strong>
+        <span>A failed playbook is caught within the hour, not instantly — a conscious trade for keeping the watchdog a single self-contained playbook instead of editing a catch scope into all ten.</span></li>
+      <li><strong>Human roles are a design, not assigned</strong>
+        <span>Security Reader, SOC Responder and Owner are documented with the exact scopes they would hold, but one person runs the lab, so a single owner account does all three jobs.</span></li>
+    </ul>
+
+    <div class="related-box" style="margin-top:32px;">
+      <p>Related: <a href="Shift-Left-Cloud-Guardrails.html">Shift-Left &amp; Cloud Guardrails on Azure</a> — the prevention-side counterpart; this project reuses its CI/CD pipeline, OIDC identities and Azure Policy.
+      Source: <a href="https://github.com/hanqin-lyu/project-Sentinel-SOC">project-Sentinel-SOC</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p><a href="../index.html">← Back to all projects</a></p>
+  </div>
+</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#EFF6FC',
+      primaryBorderColor: '#115EA3',
+      primaryTextColor: '#101828',
+      lineColor: '#115EA3',
+      secondaryColor: '#E7F5EF',
+      tertiaryColor: '#FFFFFF',
+      fontFamily: 'IBM Plex Sans, sans-serif'
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Assisted, Multi-Cloud SOC — Next Project</title>
+<meta name="description" content="The follow-on to the Sentinel closed-loop SOC: ML-based anomaly detection, threat hunting, and log collection across Azure and AWS via Azure Arc and Azure Policy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .note-box { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--azure); border-radius: var(--radius); padding: 16px 20px; margin: 20px 0 8px; }
+  .note-box p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+  .note-box strong { color: var(--ink); }
+  .stack-table, .metrics-table { display: block; overflow-x: auto; }
+  .draft-tag { display:inline-block; font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--warn); background: var(--warn-tint); border-radius: 999px; padding: 4px 12px; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <div class="nav-mark">Hanqin<span>Lyu</span></div>
+    <div class="nav-links">
+      <a href="../index.html#projects">All projects</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" style="padding-bottom:48px;">
+  <div class="wrap">
+    <div class="eyebrow">Next Project / Security Operations</div>
+    <span class="draft-tag">Draft scope · Nov 2026</span>
+    <h1 class="trim trim-on-load" style="max-width:22ch;">AI-Assisted, Multi-Cloud SOC</h1>
+    <p class="lede">The follow-on to the Sentinel closed-loop SOC. That project is the manual, rule-based
+      baseline; this one adds ML-based anomaly detection, threat hunting, and log collection across both
+      Azure and AWS — with the first project's measured response times kept as the number to beat.</p>
+    <div class="badge-row">
+      <span class="badge azure">Microsoft Sentinel</span>
+      <span class="badge azure">Azure Policy</span>
+      <span class="badge azure">Azure Arc</span>
+      <span class="badge azure">Azure Monitor Agent</span>
+      <span class="badge azure">KQL</span>
+      <span class="badge azure">MITRE ATT&amp;CK</span>
+    </div>
+    <div class="meta-row">
+      <span>Scoping in progress</span>
+      <span>·</span>
+      <span>Builds on the closed-loop SOC</span>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>What changes from the first project</h2>
+      <p>The closed-loop SOC proved a manual, rule-based loop end to end. This project keeps that loop as the baseline and raises each part of it.</p>
+    </div>
+    <table class="metrics-table">
+      <thead>
+        <tr><th>Area</th><th>First project (baseline)</th><th>This project</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Analysis</td><td>Static, rule-based KQL</td><td>ML / AI-assisted anomaly detection</td></tr>
+        <tr><td>Operating model</td><td>Manual SecOps</td><td>AI-assisted triage and response</td></tr>
+        <tr><td>Threat hunting</td><td>None</td><td>Added</td></tr>
+        <tr><td>Log collection</td><td>AMA + DCR on one Azure VM, static monitoring</td><td>Azure Policy deploys AMA automatically to Azure and AWS machines</td></tr>
+        <tr><td>Workspaces</td><td>One</td><td>Several, with queries across workspaces and across clouds</td></tr>
+        <tr><td>Detections</td><td>Hand-written KQL rules</td><td>ML-based anomaly detection, mapped to MITRE ATT&amp;CK with coverage-gap analysis</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Things to settle first</h2>
+      <p>Open questions being written down before any building starts — the same honest-scoping habit as the first project.</p>
+    </div>
+    <ul class="decision-list">
+      <li><strong>AWS needs Azure Arc</strong>
+        <span>Azure Policy only reaches AWS machines once they are onboarded to Azure Arc. Microsoft's built-in policies then install the Azure Monitor Agent and associate a data collection rule on the Arc-enabled servers, using each machine's system-assigned managed identity. Onboarding to Arc comes first.</span></li>
+      <li><strong>What "the ML does" has to be defined</strong>
+        <span>Detection here means ML anomaly detection — for example UEBA and the KQL time-series anomaly functions — which is a different approach from having an AI draft KQL rules. The exact scope gets written down before building so the claims stay honest.</span></li>
+      <li><strong>Keep the first project's numbers as the baseline</strong>
+        <span>The closed-loop SOC's workbook already measures time to acknowledge, time to contain and approval latency. Those numbers are the comparison point this project has to improve on.</span></li>
+    </ul>
+
+    <div class="note-box">
+      <p><strong>Out of scope for the first project, on purpose.</strong> AI/ML analysis, threat hunting and
+      multi-cloud collection were deliberately kept out of the closed-loop SOC so that project could stay a
+      clean, provable baseline. They are the whole point of this one.</p>
+    </div>
+
+    <div class="related-box" style="margin-top:32px;">
+      <p>Builds on: <a href="Closed-Loop-SOC-Sentinel.html">Closed-Loop SOC on Azure: Sentinel Detection &amp; SOAR Response</a> — the rule-based baseline this project extends.
+      Have an idea or a question? <a href="mailto:lyuhanqin@gmail.com">lyuhanqin@gmail.com</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p><a href="../index.html">← Back to all projects</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
