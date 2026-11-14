@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Endpoint Intrusion Investigation Lab — Next Project</title>
+<meta name="description" content="A four-step intrusion on a Windows Server with Defender for Endpoint, investigated from the alert only and written up as a client-facing post-incident report.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .note-box { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--azure); border-radius: var(--radius); padding: 16px 20px; margin: 20px 0 8px; }
+  .note-box p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+  .note-box strong { color: var(--ink); }
+  .stack-table, .metrics-table { display: block; overflow-x: auto; }
+  .draft-tag { display:inline-block; font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--warn); background: var(--warn-tint); border-radius: 999px; padding: 4px 12px; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <div class="nav-mark">Hanqin<span>Lyu</span></div>
+    <div class="nav-links">
+      <a href="../index.html#projects">All projects</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" style="padding-bottom:48px;">
+  <div class="wrap">
+    <div class="eyebrow">Next Project / Incident Investigation</div>
+    <span class="draft-tag">Draft scope · Nov 2026</span>
+    <h1 class="trim trim-on-load" style="max-width:22ch;">Endpoint Intrusion Investigation Lab</h1>
+    <p class="lede">My earlier projects show I can build. This one practises what a SOC analyst does
+      with what gets built: investigate suspicious behaviour on an endpoint, starting from the alert,
+      and write a report a client can act on.</p>
+    <div class="badge-row">
+      <span class="badge azure">Defender for Endpoint</span>
+      <span class="badge azure">Defender for Servers</span>
+      <span class="badge azure">Advanced Hunting</span>
+      <span class="badge azure">KQL</span>
+      <span class="badge azure">MITRE ATT&amp;CK</span>
+      <span class="badge azure">Atomic Red Team</span>
+    </div>
+    <div class="meta-row">
+      <span>Planning</span>
+      <span>·</span>
+      <span><a href="https://github.com/hanqin-lyu/project-Endpoint-IR-Lab">GitHub repository</a></span>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>The intrusion</h2>
+      <p>One chain, run as a single intrusion on one Windows Server — not four isolated tests.</p>
+    </div>
+    <table class="metrics-table">
+      <thead>
+        <tr><th>Step</th><th>Technique</th><th>MITRE ATT&amp;CK</th><th>Main tables</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Encoded PowerShell, download and execute</td><td>T1059.001</td><td>DeviceProcessEvents, DeviceNetworkEvents</td></tr>
+        <tr><td>2</td><td>Scheduled task persistence</td><td>T1053.005</td><td>DeviceProcessEvents, DeviceEvents</td></tr>
+        <tr><td>3</td><td>New local administrator account</td><td>T1136.001</td><td>DeviceEvents, DeviceProcessEvents</td></tr>
+        <tr><td>4</td><td>LSASS memory access attempt — expected to be blocked</td><td>T1003.001</td><td>DeviceEvents, Defender alerts</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Design decisions</h2>
+      <p>Written down before building, so the claims stay honest.</p>
+    </div>
+    <ul class="decision-list">
+      <li><strong>Real telemetry only</strong>
+        <span>Every alert, timestamp and screenshot comes from my own lab machine. Steps that would need synthetic logs were cut rather than faked.</span></li>
+      <li><strong>Investigate from the alert, not the script</strong>
+        <span>Detections are written before the chain runs. A day or two later I investigate starting only from what fired, and keep the wrong turns in the walkthrough.</span></li>
+      <li><strong>Defender for Servers, not Microsoft 365 E5</strong>
+        <span>E5 user licences do not cover servers, and its identity and email parts are out of scope. Defender for Servers Plan 1 onboards Defender for Endpoint to one VM and bills by the hour.</span></li>
+      <li><strong>Zero ingestion cost</strong>
+        <span>Hunting and custom detections run in the Defender portal. Raw events are not streamed to Sentinel, where they would be billed by volume. Fallback if the portal features are not available: Sysmon and Azure Monitor Agent.</span></li>
+    </ul>
+
+    <div class="note-box">
+      <p><strong>Deliverables.</strong> Four KQL detections with at least one tuning record, an investigation
+      walkthrough, and a post-incident report with a timeline, scope, containment, recommendations, IOCs and
+      MITRE mapping. The client and case ID are fictional; the data is not.</p>
+    </div>
+
+    <div class="related-box" style="margin-top:32px;">
+      <p>Builds on: <a href="Closed-Loop-SOC-Sentinel.html">Closed-Loop SOC on Azure: Sentinel Detection &amp; SOAR Response</a> — detection and response on a honeypot; this project adds the endpoint investigation and the written report.
+      Have an idea or a question? <a href="mailto:lyuhanqin@gmail.com">lyuhanqin@gmail.com</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p><a href="../index.html">← Back to all projects</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
