@@ -30,7 +30,7 @@
 <header class="hero" style="padding-bottom:48px;">
   <div class="wrap">
     <div class="eyebrow">Next Project / Incident Investigation</div>
-    <span class="draft-tag">Draft scope · Nov 2026</span>
+    <span class="draft-tag">In progress · Nov 2026</span>
     <h1 class="trim trim-on-load" style="max-width:22ch;">Endpoint Intrusion Investigation Lab</h1>
     <p class="lede">My earlier projects show I can build. This one practises what a SOC analyst does
       with what gets built: investigate suspicious behaviour on an endpoint, starting from the alert,
@@ -42,9 +42,10 @@
       <span class="badge azure">KQL</span>
       <span class="badge azure">MITRE ATT&amp;CK</span>
       <span class="badge azure">Atomic Red Team</span>
+      <span class="badge azure">Terraform</span>
     </div>
     <div class="meta-row">
-      <span>Planning</span>
+      <span>In progress</span>
       <span>·</span>
       <span><a href="https://github.com/hanqin-lyu/project-Endpoint-IR-Lab">GitHub repository</a></span>
     </div>
@@ -86,6 +87,8 @@
         <span>E5 user licences do not cover servers, and its identity and email parts are out of scope. Defender for Servers Plan 1 onboards Defender for Endpoint to one VM and bills by the hour.</span></li>
       <li><strong>Zero ingestion cost</strong>
         <span>Hunting and custom detections run in the Defender portal. Raw events are not streamed to Sentinel, where they would be billed by volume. Fallback if the portal features are not available: Sysmon and Azure Monitor Agent.</span></li>
+      <li><strong>Deployed as code</strong>
+        <span>The VM, network, auto-shutdown and budget alert are Terraform, shipped through the same reviewed CI/CD pipeline as my earlier projects: a pull request runs fmt, validate, Checkov and gitleaks then a plan, and a merge applies only after I approve the deployment. A docs-only change skips the heavy steps but still reports the required check.</span></li>
     </ul>
 
     <div class="note-box">
