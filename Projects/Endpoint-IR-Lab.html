@@ -89,6 +89,8 @@
         <span>Hunting and custom detections run in the Defender portal. Raw events are not streamed to Sentinel, where they would be billed by volume. Fallback if the portal features are not available: Sysmon and Azure Monitor Agent.</span></li>
       <li><strong>Deployed as code</strong>
         <span>The VM, network, auto-shutdown and budget alert are Terraform, shipped through the same reviewed CI/CD pipeline as my earlier projects: a pull request runs fmt, validate, Checkov and gitleaks then a plan, and a merge applies only after I approve the deployment. A docs-only change skips the heavy steps but still reports the required check.</span></li>
+      <li><strong>Response order: scope, then isolate, then forensics</strong>
+        <span>On a confirmed intrusion the sequence is scope first — which host, which account, what ran — then isolate the device in Defender for Endpoint to stop lateral movement, then forensics and remediation. Containment comes before forensic completeness once the intrusion is confirmed, so the post-incident report records the isolation action and its time in the containment section. This is a real endpoint, not the honeypot, so isolation is the actual response, not a documented caveat.</span></li>
     </ul>
 
     <div class="note-box">
