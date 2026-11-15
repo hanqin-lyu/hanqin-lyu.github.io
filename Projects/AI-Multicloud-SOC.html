@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI-Assisted, Multi-Cloud SOC — Next Project</title>
-<meta name="description" content="The follow-on to the Sentinel closed-loop SOC: ML-based anomaly detection, threat hunting, and log collection across Azure and AWS via Azure Arc and Azure Policy.">
+<title>Multi-Cloud SOC: Cross-Cloud Identity Investigation — Planned Project</title>
+<meta name="description" content="One stolen identity moves from Entra ID into Azure, into AWS through federation and onto a machine. Microsoft Sentinel joins the steps into one incident; the investigation works out the blast radius and contains it in both clouds.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
@@ -29,24 +29,26 @@
 
 <header class="hero" style="padding-bottom:48px;">
   <div class="wrap">
-    <div class="eyebrow">Next Project / Security Operations</div>
+    <div class="eyebrow">Planned Project / Incident Investigation</div>
     <span class="draft-tag">Draft scope · Nov 2026</span>
-    <h1 class="trim trim-on-load" style="max-width:22ch;">AI-Assisted, Multi-Cloud SOC</h1>
-    <p class="lede">The follow-on to the Sentinel closed-loop SOC. That project is the manual, rule-based
-      baseline; this one adds ML-based anomaly detection, threat hunting, and log collection across both
-      Azure and AWS — with the first project's measured response times kept as the number to beat.</p>
+    <h1 class="trim trim-on-load" style="max-width:22ch;">Multi-Cloud SOC: Cross-Cloud Identity Investigation</h1>
+    <p class="lede">The closed-loop SOC stops an unknown attacker at the edge of one VM. This project
+      follows an attacker who already has valid credentials: one stolen identity moves from Entra ID
+      into Azure, into AWS through federation, and onto a machine. The work is joining the pieces into
+      one incident, working out the blast radius, and containing it in both clouds.</p>
     <div class="badge-row">
       <span class="badge azure">Microsoft Sentinel</span>
-      <span class="badge azure">Azure Policy</span>
+      <span class="badge azure">Entra ID</span>
+      <span class="badge azure">AWS IAM Identity Center</span>
+      <span class="badge azure">AWS CloudTrail</span>
       <span class="badge azure">Azure Arc</span>
-      <span class="badge azure">Azure Monitor Agent</span>
       <span class="badge azure">KQL</span>
       <span class="badge azure">MITRE ATT&amp;CK</span>
     </div>
     <div class="meta-row">
       <span>Scoping in progress</span>
       <span>·</span>
-      <span>Builds on the closed-loop SOC</span>
+      <span><a href="https://github.com/hanqin-lyu/project-AI-Multicloud-SOC">GitHub repository</a></span>
     </div>
   </div>
 </header>
@@ -54,20 +56,19 @@
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>What changes from the first project</h2>
-      <p>The closed-loop SOC proved a manual, rule-based loop end to end. This project keeps that loop as the baseline and raises each part of it.</p>
+      <h2>The attack chain</h2>
+      <p>One identity, five steps, three domains — run as a single incident against lab accounts and resources only.</p>
     </div>
     <table class="metrics-table">
       <thead>
-        <tr><th>Area</th><th>First project (baseline)</th><th>This project</th></tr>
+        <tr><th>Step</th><th>What happens</th><th>MITRE ATT&amp;CK</th><th>Main tables</th></tr>
       </thead>
       <tbody>
-        <tr><td>Analysis</td><td>Static, rule-based KQL</td><td>ML / AI-assisted anomaly detection</td></tr>
-        <tr><td>Operating model</td><td>Manual SecOps</td><td>AI-assisted triage and response</td></tr>
-        <tr><td>Threat hunting</td><td>None</td><td>Added</td></tr>
-        <tr><td>Log collection</td><td>AMA + DCR on one Azure VM, static monitoring</td><td>Azure Policy deploys AMA automatically to Azure and AWS machines</td></tr>
-        <tr><td>Workspaces</td><td>One</td><td>Several, with queries across workspaces and across clouds</td></tr>
-        <tr><td>Detections</td><td>Hand-written KQL rules</td><td>ML-based anomaly detection, mapped to MITRE ATT&amp;CK with coverage-gap analysis</td></tr>
+        <tr><td>1</td><td>Sign-in with valid credentials from an unusual network</td><td>T1078.004</td><td>SigninLogs</td></tr>
+        <tr><td>2</td><td>Read a secret from Azure Key Vault</td><td>T1555.006</td><td>AzureDiagnostics</td></tr>
+        <tr><td>3</td><td>Federate into AWS; list IAM users and roles</td><td>T1078.004, T1087.004</td><td>SigninLogs, AWSCloudTrail</td></tr>
+        <tr><td>4</td><td>Read an S3 bucket; create an access key</td><td>T1530, T1098.001</td><td>AWSCloudTrail</td></tr>
+        <tr><td>5</td><td>SSM Session Manager to an EC2 instance; run commands</td><td>T1651</td><td>AWSCloudTrail, Syslog</td></tr>
       </tbody>
     </table>
   </div>
@@ -76,26 +77,50 @@
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Things to settle first</h2>
-      <p>Open questions being written down before any building starts — the same honest-scoping habit as the first project.</p>
+      <h2>Three problems it has to solve</h2>
+      <p>Each feature has to serve one of these, and each has a metric measured from real runs.</p>
     </div>
     <ul class="decision-list">
-      <li><strong>AWS needs Azure Arc</strong>
-        <span>Azure Policy only reaches AWS machines once they are onboarded to Azure Arc. Microsoft's built-in policies then install the Azure Monitor Agent and associate a data collection rule on the Arc-enabled servers, using each machine's system-assigned managed identity. Onboarding to Arc comes first.</span></li>
-      <li><strong>What "the ML does" has to be defined</strong>
-        <span>Detection here means ML anomaly detection — for example UEBA and the KQL time-series anomaly functions — which is a different approach from having an AI draft KQL rules. The exact scope gets written down before building so the claims stay honest.</span></li>
-      <li><strong>Keep the first project's numbers as the baseline</strong>
-        <span>The closed-loop SOC's workbook already measures time to acknowledge, time to contain and approval latency. Those numbers are the comparison point this project has to improve on.</span></li>
+      <li><strong>The attack is seen in pieces</strong>
+        <span>Entra sign-ins, Azure activity, CloudTrail and host logs sit apart, so each alert looks small. All sources land in one workspace, every rule maps the same account entity, and a correlation rule joins the steps into one incident. Target: one incident per chain run.</span></li>
+      <li><strong>Nobody can say what the identity could reach</strong>
+        <span>The blast radius is answered in two columns: what the identity <em>could</em> reach, from a read-only permission listing across Entra ID, Azure and IAM Identity Center, and what it <em>did</em> touch, from the logs. The gap between them drives the hardening recommendations.</span></li>
+      <li><strong>Containing one cloud leaves the other open</strong>
+        <span>Disabling the Entra user does not end an AWS session that was already issued. One ordered playbook, approved by the analyst, contains the identity in Entra ID and AWS, isolates the host and rotates the exposed secret — then a re-test checks that every attacker session and key is rejected.</span></li>
     </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>What changes from the first project</h2>
+      <p>The closed-loop SOC stays the baseline; its measured response times are the numbers to beat.</p>
+    </div>
+    <table class="metrics-table">
+      <thead>
+        <tr><th>Area</th><th>First project (baseline)</th><th>This project</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Attacker</td><td>Unknown IPs brute-forcing a honeypot</td><td>A valid identity moving across Entra ID, Azure and AWS</td></tr>
+        <tr><td>Detection</td><td>Hand-written KQL per event</td><td>Per-step rules plus per-identity anomaly rules, joined into one incident</td></tr>
+        <tr><td>Investigation</td><td>Triage of single alerts</td><td>Cross-domain timeline and blast radius</td></tr>
+        <tr><td>Response</td><td>Block an IP in one NSG</td><td>Ordered containment of an identity in Entra ID and AWS, plus host isolation</td></tr>
+        <tr><td>Log collection</td><td>AMA + DCR on one Azure VM</td><td>Azure Policy deploys AMA to the AWS machine through Azure Arc</td></tr>
+      </tbody>
+    </table>
 
     <div class="note-box">
-      <p><strong>Out of scope for the first project, on purpose.</strong> AI/ML analysis, threat hunting and
-      multi-cloud collection were deliberately kept out of the closed-loop SOC so that project could stay a
-      clean, provable baseline. They are the whole point of this one.</p>
+      <p><strong>Re-scoped before building.</strong> The first draft was an EU honeypot with data residency,
+      two regional workspaces, threat-intelligence feeds and automatic IP blocking in both clouds. It mostly
+      repeated the baseline at a larger size and showed automation rather than investigation, so it was cut
+      back to one end-to-end identity story. ML stays as per-identity anomaly detection; an anomaly raises
+      severity but never decides an incident or a response.</p>
     </div>
 
     <div class="related-box" style="margin-top:32px;">
-      <p>Builds on: <a href="Closed-Loop-SOC-Sentinel.html">Closed-Loop SOC on Azure: Sentinel Detection &amp; SOAR Response</a> — the rule-based baseline this project extends.
+      <p>Builds on: <a href="Closed-Loop-SOC-Sentinel.html">Closed-Loop SOC on Azure: Sentinel Detection &amp; SOAR Response</a> — the rule-based baseline.
+      Starts where <a href="M365-BEC-IR-Lab.html">M365 Account Compromise &amp; BEC Investigation Lab</a> ends: that project covers how the account is stolen, this one how far it gets.
       Have an idea or a question? <a href="mailto:lyuhanqin@gmail.com">lyuhanqin@gmail.com</a>.</p>
     </div>
   </div>
