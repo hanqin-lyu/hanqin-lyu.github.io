@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M365 Account Compromise &amp; BEC Investigation Lab — Planned Project</title>
+<meta name="description" content="An account compromise and business email compromise simulated in a Microsoft 365 E5 trial tenant, investigated from the alert in the Defender portal and written up as a client-facing post-incident report.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .note-box { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--azure); border-radius: var(--radius); padding: 16px 20px; margin: 20px 0 8px; }
+  .note-box p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+  .note-box strong { color: var(--ink); }
+  .stack-table, .metrics-table { display: block; overflow-x: auto; }
+  .draft-tag { display:inline-block; font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--warn); background: var(--warn-tint); border-radius: 999px; padding: 4px 12px; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <div class="nav-mark">Hanqin<span>Lyu</span></div>
+    <div class="nav-links">
+      <a href="../index.html#projects">All projects</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" style="padding-bottom:48px;">
+  <div class="wrap">
+    <div class="eyebrow">Planned Project / Incident Investigation</div>
+    <span class="draft-tag">Draft scope · Nov 2026</span>
+    <h1 class="trim trim-on-load" style="max-width:22ch;">M365 Account Compromise &amp; BEC Investigation Lab</h1>
+    <p class="lede">The endpoint lab covers investigating a host. This one covers the other incident
+      a SOC analyst is asked about most: a compromised Microsoft 365 account and the business
+      email compromise that follows — investigated from the alert, contained, hardened and
+      written up for a client.</p>
+    <div class="badge-row">
+      <span class="badge azure">Microsoft 365 E5</span>
+      <span class="badge azure">Microsoft Defender XDR</span>
+      <span class="badge azure">Entra ID</span>
+      <span class="badge azure">BEC</span>
+      <span class="badge azure">OAuth Consent</span>
+      <span class="badge azure">Incident Report</span>
+    </div>
+    <div class="meta-row">
+      <span>Planning</span>
+      <span>·</span>
+      <span><a href="https://github.com/hanqin-lyu/project-M365-BEC-IR-Lab">GitHub repository</a></span>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>The incident</h2>
+      <p>One compromise, run as a single story in a Microsoft 365 E5 trial tenant.</p>
+    </div>
+    <table class="metrics-table">
+      <thead>
+        <tr><th>Step</th><th>What happens</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Phishing email reaches a user</td></tr>
+        <tr><td>2</td><td>Unusual sign-in to the account</td></tr>
+        <tr><td>3</td><td>Malicious OAuth application consent grant</td></tr>
+        <tr><td>4</td><td>Inbox rule that forwards mail outside the organisation</td></tr>
+        <tr><td>5</td><td>Internal spread from the compromised mailbox</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Design decisions</h2>
+      <p>Written down before building, so the claims stay honest.</p>
+    </div>
+    <ul class="decision-list">
+      <li><strong>Real telemetry only</strong>
+        <span>Every alert, timestamp and screenshot comes from my own trial tenant. No synthetic logs.</span></li>
+      <li><strong>Investigate from the alert</strong>
+        <span>The investigation starts in the Defender portal from what fired, not from the simulation notes.</span></li>
+      <li><strong>Two certifications, one incident</strong>
+        <span>The investigation uses SC-200 skills; the containment and hardening use SC-300 skills.</span></li>
+      <li><strong>Same fictional client as the endpoint lab</strong>
+        <span>Both investigations are written for one client, so the two reports read as one engagement.</span></li>
+    </ul>
+
+    <div class="note-box">
+      <p><strong>Deliverables.</strong> An investigation walkthrough, a record of the containment and
+      hardening actions, and a client-facing post-incident report. The client is fictional; the data is not.</p>
+    </div>
+
+    <div class="related-box" style="margin-top:32px;">
+      <p>Follows: <a href="Endpoint-IR-Lab.html">Endpoint Intrusion Investigation Lab</a> — the endpoint half; this project adds the identity and mailbox half.
+      Have an idea or a question? <a href="mailto:lyuhanqin@gmail.com">lyuhanqin@gmail.com</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p><a href="../index.html">← Back to all projects</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
