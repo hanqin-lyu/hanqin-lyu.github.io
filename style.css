@@ -1,29 +1,31 @@
 /* Hanqin Lyu Portfolio — tokens mirror design.md / the design system's tokens.json. */
 :root {
   color-scheme: light;
-  /* Color — light */
-  --bg: #F7F9FC;
-  --surface: #FFFFFF;
-  --surface-tint: #EFF6FC;
-  --ink: #101828;
-  --ink-soft: #475467;
-  --ink-faint: #667085;
-  --line: #E4E7EC;
-  --line-strong: #D0D5DD;
+  /* Color — light, tuned for long reading and bright daylight: a low-glare cool grey
+     ground, off-white surfaces instead of pure white, and ink softened from near-black.
+     Peak text contrast ~15:1 (was ~18:1); every text pair still meets WCAG AA. */
+  --bg: #EEF0F3;
+  --surface: #F8F9FA;
+  --surface-tint: #E6EEF6;
+  --ink: #1B2230;
+  --ink-soft: #465062;
+  --ink-faint: #5D6676;
+  --line: #DADEE4;
+  --line-strong: #C5CBD3;
   --azure: #115EA3;
   --azure-bright: #0F6CBD;
   --on-azure: #FFFFFF;
   --azure-line: #B8D9F0;
   --verified: #0B6E4F;
-  --verified-tint: #E7F5EF;
+  --verified-tint: #E3F1EA;
   --verified-line: #BEE3D2;
-  --warn: #B45309;
-  --warn-tint: #FFF3E0;
+  --warn: #A84D08;
+  --warn-tint: #FBEFDC;
   --warn-line: #FFD9A0;
   --warn-ink: #92400E;
   --warn-ink-strong: #78350F;
   /* Mermaid diagrams use fixed light colours, so their frame stays light in every theme. */
-  --diagram-surface: #FFFFFF;
+  --diagram-surface: #F8F9FA;
 
   /* Shadow — only lifts a hovered or focused project card; nothing rests on a shadow. */
   --shadow-raised:
@@ -138,6 +140,7 @@ a:focus-visible, button:focus-visible {
   outline: var(--focus-ring) solid var(--azure-bright);
   outline-offset: var(--focus-ring);
 }
+::selection { background: var(--azure-line); color: var(--ink); }
 h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1.15; margin: 0; }
 [id] { scroll-margin-top: var(--scroll-offset); }
 
@@ -148,9 +151,58 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
 .site-nav .wrap { display: flex; align-items: center; justify-content: space-between; height: var(--nav-height); }
 .nav-mark { font-family: var(--font-mono); font-weight: 600; font-size: 14px; letter-spacing: 0.02em; color: var(--ink); }
 .nav-mark span { color: var(--azure); }
-.nav-links { display: flex; gap: var(--space-28); }
+.nav-links { display: flex; align-items: center; gap: var(--space-28); }
 .nav-links a { color: var(--ink-soft); font-size: 14px; font-weight: 500; }
 .nav-links a:hover { color: var(--azure); text-decoration: none; }
+
+/* Theme toggle — a quiet round button at the end of the nav. Light mode shows a moon
+   (go dark), dark mode shows a sun (go light); the two icons turn and cross-fade. */
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: var(--border-hairline) solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.theme-toggle:hover { color: var(--azure); border-color: var(--azure); }
+.theme-toggle svg {
+  grid-area: 1 / 1;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.theme-toggle .icon-moon { opacity: 1; transform: rotate(0) scale(1); }
+.theme-toggle .icon-sun  { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+:root[data-theme="dark"] .theme-toggle .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.6); }
+:root[data-theme="dark"] .theme-toggle .icon-sun  { opacity: 1; transform: rotate(0) scale(1); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.6); }
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun  { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+/* While switching themes, colours cross-fade instead of snapping (theme.js adds the class for ~0.45s). */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease,
+              fill 0.35s ease, stroke 0.35s ease !important;
+}
+.theme-switching .theme-toggle svg {
+  transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              stroke 0.35s ease !important;
+}
 
 /* Eyebrow */
 .eyebrow {
@@ -367,6 +419,7 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
 /* Additions: motion safety */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .theme-toggle svg { transition: none; }
   .project-card { transition: none; }
   .project-card:hover, .project-card:focus-visible { transform: none; }
   .eyebrow::before { animation: none; }
@@ -380,6 +433,22 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
 @media (max-width: 640px) {
   .hero { padding: var(--space-64) 0 var(--space-48); }
   .hero h1 { font-size: 32px; }
-  .nav-links { gap: var(--space-16); }
   .section { padding: var(--space-48) 0; }
+
+  /* Phones: the nav needs ~450px on one row, so it becomes two rows —
+     wordmark and theme toggle on top, the section links underneath. */
+  .site-nav .wrap {
+    position: relative;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    height: auto;
+    padding-top: var(--space-14);
+    padding-bottom: var(--space-12);
+    row-gap: var(--space-10);
+  }
+  .nav-mark { line-height: 32px; }
+  .nav-links { gap: var(--space-16); flex-wrap: wrap; }
+  .theme-toggle { position: absolute; top: var(--space-14); right: var(--space-24); }
+  [id] { scroll-margin-top: 116px; }
 }
