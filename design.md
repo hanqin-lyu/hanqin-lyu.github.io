@@ -3,7 +3,7 @@
 > 来源：`style.css` 与 `index.html`（commit 4126921）。标注【补充】的是本次新增，尚未写回 `style.css`。
 > 在线版：https://claude.ai/artifact/AWec8LgHLRaH6bgH1kTsS7
 
-一套为“云安全工程师作品集”而生的克制、证据导向的视觉语言：浅冷灰底、Azure 蓝作为唯一品牌色、绿色只代表“已验证”，标题用 Space Grotesk，正文用 IBM Plex Sans，所有“机器味”的元数据（认证、标签、状态）用 IBM Plex Mono。
+一套为“云安全工程师作品集”而生的克制、证据导向的视觉语言：低眩光的冷灰底、Azure 蓝作为唯一品牌色、绿色只代表“已验证”，标题用 Space Grotesk，正文用 IBM Plex Sans，所有“机器味”的元数据（认证、标签、状态）用 IBM Plex Mono。
 
 ## 设计原则
 
@@ -29,7 +29,9 @@
 - 链接与主操作用 `azure`，hover 用 `azure-bright`；主按钮文字用 `on-azure`（不要写死 `#fff`，dark 主题会失效）。
 - `verified` + `verified-tint` + `verified-line` 只用于“已完成/已认证”；`warn` + `warn-tint` + `warn-line` 只用于“进行中”。两者都必须同时有文字或字形（✓ / ○ / 单词），不能只靠色相区分。
 - `surface-tint` + `azure-line` 是“相关/延伸阅读”的底，例如 `related-box` 与 azure badge。
-- **Dark 主题（补充）：** 所有颜色 token 都有 dark 值，按 `[data-theme="dark"]` 切换。azure 在 dark 中提亮到 `#5aa9e6`，所以主按钮文字随 `on-azure` 变为深色。
+- **Light 主题为长时间阅读调校：** 底色 `bg` 用低眩光冷灰 `#eef0f3`（不是近白），卡片 `surface` 用灰白 `#f8f9fa`（不是纯白），正文 `ink` 用 `#1b2230`（不是纯近黑）。最大文字对比约 15:1，所有文字组合仍达 WCAG AA。不要把 `surface` 改回 `#ffffff`，也不要引入暖米色，保持冷灰的技术调性。
+- **Dark 主题：** 所有颜色 token 都有 dark 值。azure 在 dark 中提亮到 `#5aa9e6`，所以主按钮文字随 `on-azure` 变为深色。
+- **文字选中：** `::selection` 用 `azure-line` 底、`ink` 字。
 
 ## 字体
 
@@ -44,7 +46,7 @@
 - 内容居中，`.wrap` 最大 `wrap-max`（920px），左右 gutter `space-24`。单列阅读体验，项目卡片也是单列网格（`card-grid`，间距 `space-20`）。
 - 纵向节奏：section 上下 `space-64`（移动端 `space-48`），hero 顶部 `space-96`；section 之间用 `line` 分隔线，最后一个 section 无分隔线。
 - 间距 token 以像素命名（`space-4` = 4px），源站使用的半步（6/10/14/18）都保留，不要四舍五入到 8px 网格。
-- 唯一断点 `breakpoint-sm`（640px）。导航 sticky，高 `nav-height`，锚点用 `scroll-offset`（88px）避让。
+- 唯一断点 `breakpoint-sm`（640px）。导航 sticky，高 `nav-height`，锚点用 `scroll-offset`（88px）避让。≤640px 时导航变两行：上行文字标 + 主题切换按钮，下行链接；锚点避让 116px。
 - 行宽：导语 `measure-lede`（56ch），section 说明 `measure-section`（60ch），首页 h1 `measure-title`（15ch）。
 
 ## 描边、圆角、阴影
@@ -77,6 +79,16 @@ Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉
 - 点击卡片的延迟只对普通左键生效；Cmd / Ctrl / Shift 点击与 `prefers-reduced-motion` 直接跳转，不播放。浏览器“返回”时 `pageshow` 复位卡片。
 - 只给“刚被到达或打开”的标题用：不常驻、不换色、不加粗，一屏同时最多一对在动。
 
+## 主题切换
+
+- 每个页面导航最右侧有一个主题切换按钮（`ThemeToggle`）：32px 圆形、`line-strong` 描边、`surface` 底、`ink-soft` 图标，hover 时图标与描边变 `azure`。
+- light 显示月亮（点击进入 dark），dark 显示太阳（点击回到 light）；两个 16px 线性图标旋转 90° 并缩放交叉淡入，0.5s。
+- 访客未选择时跟随系统 `prefers-color-scheme`；点击后在 `<html>` 上写 `data-theme` 并存入 `localStorage`（键 `theme`），刷新与跨页面保持。
+- 每页 `<head>` 在样式表之前有一行内联脚本，首帧前套用已保存的主题，避免闪烁；交互逻辑在根目录 `theme.js`。
+- 切换时 `theme.js` 给 `<html>` 加约 0.45s 的 `.theme-switching`，让背景、文字、描边 0.35s 交叉过渡；`prefers-reduced-motion` 下直接切换。
+- 按钮的 `aria-label` / `title` 随状态变为 “Switch to dark mode / light mode”，`aria-pressed` 表示是否为 dark。
+- Mermaid 图的配色固定为浅色，所以 `diagram-block` 在两个主题下都保持浅色底（`diagram-surface`）。
+
 ## 图像与图表
 
 - 截图放在 `evidence` 中：满宽、`line` 描边、`radius` 圆角，下接 `diagram-caption`。
@@ -87,12 +99,13 @@ Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉
 
 - 系统没有图标库，也没有 logo。品牌标识是纯文字标 **HanqinLyu**（`mark` 样式，`Lyu` 用 `azure`）。
 - 仅有两个文字字形：`✓`（verified badge）与 `○`（pending badge），由 CSS `::before` 生成，不要手写进文本。
-- 方向箭头 “→” 作为文字字符使用。如需真正的图标，请先补充图标系统，不要混用 emoji。
+- 方向箭头 “→” 作为文字字符使用。
+- 唯一的图形图标是主题切换按钮里的月亮与太阳：内联 SVG，24 网格、16px、`stroke: currentColor`、线宽 1.6、圆角端点，无填充。新增图标须沿用同样的线性规格，不要混用 emoji 或填充图标。
 
 ## 无障碍
 
-- 主要文字对比度：`ink` ≥14:1，`ink-soft` ≥7:1，`ink-faint` ≥4.6:1（两个主题）。
-- 已知差距（保留源站原值）：`line-strong` 作为次按钮与 pending badge 描边在 `surface` 上约 1.4:1，低于 3:1；这些控件靠文字可识别，若要改进，可将次按钮描边换为 `ink-faint`。
+- 主要文字对比度：`ink` ≥13.9:1，`ink-soft` ≥7:1，`ink-faint` ≥5:1（两个主题）。
+- 已知差距：`line-strong` 作为次按钮、主题切换按钮与 pending badge 描边在 `surface` 上约 1.55:1，低于 3:1；这些控件靠文字或图标可识别，若要改进，可将描边换为 `ink-faint`。
 - 状态永远同时有文字：不要只用绿/橙色点表示状态。
 
 ## 补充项（本次完善）
@@ -105,6 +118,8 @@ Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉
 - Trim 强调动效（柜门拉手式）：锚点跳转、项目页标题、点击卡片（见 Trim 一节）。
 - 卡片悬停多层阴影 `shadow-raised`。
 - 导航新增 About 锚点。
+- Light 主题改为低眩光配色（冷灰底、灰白卡片、柔和正文色）。
+- 主题切换按钮（月亮 / 太阳）与 `theme.js`；手机端导航改为两行。
 
 
 ## Token 参考
@@ -113,23 +128,23 @@ Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉
 
 | Token | Light | Dark | 用途 |
 |---|---|---|---|
-| `--bg` | `#f7f9fc` | `#0b1220` | 页面底色（body）；也用作 tag 的填充色。 |
-| `--surface` | `#ffffff` | `#111a2b` | 导航栏、项目卡片、KPI、图表框、次按钮、默认 badge 的底色。 |
-| `--surface-tint` | `#eff6fc` | `#0f2238` | Azure 色调浅底：azure badge、related-box 的填充。 |
-| `--ink` | `#101828` | `#f2f4f7` | 标题与正文主色，读于 bg / surface / surface-tint 上（≥14:1）。 |
-| `--ink-soft` | `#475467` | `#b4bdcb` | 导语、卡片正文、导航链接、表格单元格；读于 bg / surface（≥7:1）。 |
-| `--ink-faint` | `#667085` | `#8d97a8` | 辅助信息：tag、meta 行、表头、图注、页脚、pending badge；读于 bg / surface（≥4.6:1）。不要用于 surface-tint 以外的彩色底。 |
-| `--line` | `#e4e7ec` | `#1f2a3d` | 装饰性分隔线与卡片描边（1px）。非功能性边框，不要求 3:1。 |
-| `--line-strong` | `#d0d5dd` | `#2c3a52` | 次按钮描边、表头下边线、pending badge 的虚线描边。注意：在 surface 上约 1.4:1，低于控件边框 3:1 —— 源站原值保留，次按钮靠文字与 hover 色识别。 |
-| `--azure` | `#115ea3` | `#5aa9e6` | 品牌主色：链接、主按钮底、eyebrow、nav-mark 的 Lyu、KPI 数字、卡片 hover 描边。链接读于 bg / surface（light 6.6:1，dark 6.6:1）。 |
+| `--bg` | `#eef0f3` | `#0b1220` | 页面底色（body）；也用作 tag 的填充色。light 为低眩光冷灰（亮度约 0.87），适合长时间阅读与强光环境。 |
+| `--surface` | `#f8f9fa` | `#111a2b` | 导航栏、项目卡片、KPI、图表框、次按钮、默认 badge、主题切换按钮的底色。light 用灰白而非纯白，避免大面积反光。 |
+| `--surface-tint` | `#e6eef6` | `#0f2238` | Azure 色调浅底：azure badge、related-box 的填充。 |
+| `--ink` | `#1b2230` | `#f2f4f7` | 标题与正文主色，读于 bg / surface / surface-tint 上（light ≥13.9:1，比纯近黑更柔和；dark ≥14:1）。 |
+| `--ink-soft` | `#465062` | `#b4bdcb` | 导语、卡片正文、导航链接、表格单元格、主题切换按钮图标；读于 bg / surface（≥7:1）。 |
+| `--ink-faint` | `#5d6676` | `#8d97a8` | 辅助信息：tag、meta 行、表头、图注、页脚、pending badge；读于 bg / surface（≥5:1）。不要用于 surface-tint 以外的彩色底。 |
+| `--line` | `#dadee4` | `#1f2a3d` | 装饰性分隔线与卡片描边（1px）。非功能性边框，不要求 3:1。 |
+| `--line-strong` | `#c5cbd3` | `#2c3a52` | 次按钮、主题切换按钮描边、表头下边线、pending badge 的虚线描边。注意：在 surface 上约 1.55:1，低于控件边框 3:1；这些控件靠文字、图标与 hover 色识别。 |
+| `--azure` | `#115ea3` | `#5aa9e6` | 品牌主色：链接、主按钮底、eyebrow、nav-mark 的 Lyu、KPI 数字、卡片 hover 描边、主题切换按钮 hover。链接读于 bg / surface（light 5.8–6.3:1，dark 6.6:1）。 |
 | `--azure-bright` | `#0f6cbd` | `#7dbdf0` | hover 态（链接、主按钮）与焦点环（2px，offset 2px），在所有底色上 ≥3:1。 |
 | `--on-azure` | `#ffffff` | `#0b1220` | 【补充】主按钮上的文字，读于 azure / azure-bright。dark 主题中 azure 变亮，故改用深色字。 |
 | `--azure-line` | `#b8d9f0` | `#1f4a70` | 【补充，原为硬编码】azure badge 与 related-box 的描边。 |
-| `--verified` | `#0b6e4f` | `#4fc79a` | “已验证/已完成”信号：verified badge、status pill 的文字；读于 verified-tint（light 5.9:1）。始终配合 ✓ 字形或文字，不单靠颜色。 |
-| `--verified-tint` | `#e7f5ef` | `#0e2a22` | verified badge 与 status pill 的填充。 |
+| `--verified` | `#0b6e4f` | `#4fc79a` | “已验证/已完成”信号：verified badge、status pill 的文字；读于 verified-tint（light 5.4:1）。始终配合 ✓ 字形或文字，不单靠颜色。 |
+| `--verified-tint` | `#e3f1ea` | `#0e2a22` | verified badge 与 status pill 的填充。 |
 | `--verified-line` | `#bee3d2` | `#1e5a45` | 【补充，原为硬编码】verified badge 的描边。 |
-| `--warn` | `#b45309` | `#f5a54a` | 【补充，原为硬编码】进行中状态：in-progress pill 文字、progress-banner 圆点；读于 warn-tint（light 4.6:1）。 |
-| `--warn-tint` | `#fff3e0` | `#2a1d0c` | 【补充，原为硬编码】in-progress pill 与 progress-banner 的填充。 |
+| `--warn` | `#a84d08` | `#f5a54a` | 进行中状态：in-progress pill 文字、progress-banner 圆点；读于 warn-tint（light 4.95:1）。 |
+| `--warn-tint` | `#fbefdc` | `#2a1d0c` | 【补充，原为硬编码】in-progress pill 与 progress-banner 的填充。 |
 | `--warn-line` | `#ffd9a0` | `#5a3d14` | 【补充，原为硬编码】progress-banner 描边。 |
 | `--warn-ink` | `#92400e` | `#f8c27a` | 【补充，原为硬编码】progress-banner 正文，读于 warn-tint（light 7.3:1）。 |
 | `--warn-ink-strong` | `#78350f` | `#fcd9a8` | 【补充，原为硬编码】progress-banner 中的 strong 强调。 |
@@ -201,9 +216,9 @@ Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉
 | Token | 值 | 用途 |
 |---|---|---|
 | `--wrap-max` | `920px` | .wrap 最大宽度。 |
-| `--nav-height` | `64px` | sticky 导航高度。 |
-| `--scroll-offset` | `88px` | [id] 的 scroll-margin-top，避免锚点被导航遮挡。 |
-| `--breakpoint-sm` | `640px` | 唯一断点：≤640px 缩小 hero 与 section 间距。 |
+| `--nav-height` | `64px` | sticky 导航高度（桌面）。≤640px 时导航变两行，高度自适应（约 91px）。 |
+| `--scroll-offset` | `88px` | [id] 的 scroll-margin-top，避免锚点被导航遮挡；≤640px 时为 116px。 |
+| `--breakpoint-sm` | `640px` | 唯一断点：≤640px 缩小 hero 与 section 间距，导航变两行（文字标 + 切换按钮 / 链接）。 |
 | `--border-hairline` | `1px` | 所有描边与分隔线。 |
 | `--border-accent` | `3px` | note-box 左侧强调边（仅此一处）。 |
 | `--focus-ring` | `2px` | 焦点环宽度与 offset，颜色 azure-bright。 |
@@ -236,9 +251,10 @@ Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉
 | `ProjectCard` | Content | 首页的项目卡片：标题 + 状态胶囊 + 描述 + tag 行 + “View details →”。整张卡是一个链接。 |
 | `SectionHead` | Layout | section 的 h2 与一段说明。 |
 | `SiteFooter` | Layout | 页脚：版权与 GitHub / LinkedIn / Email 链接，用 “·” 分隔。 |
-| `SiteNav` | Layout | 顶部 sticky 导航：左侧文字标 HanqinLyu，右侧 2–3 个文字链接。 |
+| `SiteNav` | Layout | 顶部 sticky 导航：左侧文字标 HanqinLyu，右侧 2–4 个文字链接，最后是主题切换按钮；≤640px 变两行。 |
 | `StatusPill` | Identity | 项目卡片右上角的状态胶囊：一个大写单词说明项目对安全做了什么。 |
 | `Trim` | Motion | 柜门拉手式强调动效：标题下一对短条，打开后淡出。 |
+| `ThemeToggle` | Actions | 浅色 / 深色主题切换按钮：月亮 / 太阳图标，记住访客选择。 |
 | `Tag` | Identity | 项目卡片底部的技术关键词，比 badge 更轻。 |
 
 每个组件的完整用法见在线版；类名与样式见 `style.css`（补充项的 token 化版本见在线版 `components/bundle.css`）。
