@@ -10,6 +10,8 @@
 <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="stylesheet" href="../../style.css">
 <script src="../theme.js" defer></script>
+<link rel="stylesheet" href="../briefing.css">
+<script src="../briefing.js" defer></script>
 </head>
 <body>
 
@@ -52,7 +54,104 @@
   </div>
 </header>
 
-<section class="section">
+<section class="section" id="briefing">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>60-second briefing</h2>
+      <p>The short, non-technical version. The full technical write-up follows below.</p>
+    </div>
+
+    <div class="deck" data-deck="briefing" aria-label="60-second briefing: Zero-Trust Identity Governance on Microsoft Entra ID">
+
+      <article class="slide">
+        <p class="slide-kicker">The problem</p>
+        <h3 class="slide-title trim">Most breaches start with a stolen login.</h3>
+        <p class="slide-body">Passwords and keys get phished or leaked. Admin accounts stay all-powerful forever.
+          People who change teams or leave keep access they no longer need.</p>
+        <p class="slide-body">I set out to answer: <strong style="color:var(--ink)">can every login, every admin right and every access request be checked, time-limited and removed automatically?</strong></p>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">What I built</p>
+        <h3 class="slide-title trim">An identity system where nothing is trusted by default.</h3>
+        <ul class="slide-steps">
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/><path d="M3 3l18 18"/></svg>
+            <strong>No secrets to leak</strong>
+            <span>The deployment pipeline proves who it is with short-lived tokens instead of stored keys.</span>
+            <em>Workload Identity Federation · OIDC</em>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/></svg>
+            <strong>Checks that match the risk</strong>
+            <span>Stronger proof for admins, extra checks for risky sign-ins, old insecure logins blocked.</span>
+            <em>Conditional Access · MFA</em>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7"/><path d="M12 9v4l2.5 2"/><path d="M9 3h6"/></svg>
+            <strong>Access that expires</strong>
+            <span>Admin rights are requested and switch off on their own; leavers lose access automatically.</span>
+            <em>PIM · Access Packages · Lifecycle Workflows</em>
+          </li>
+        </ul>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">How it works</p>
+        <h3 class="slide-title trim">How an admin gets power – and loses it again. Press Next to follow one.</h3>
+        <ol class="slide-flow">
+          <li data-fragment><strong>Asks for the role</strong><span>Admin rights are never "always on"; they must be requested.</span></li>
+          <li data-fragment><strong>Proves who they are</strong><span>Multi-factor sign-in, plus a written reason for the request.</span></li>
+          <li data-fragment><strong>A second person approves</strong><span>Access is granted for a fixed time, for example 4 hours.</span></li>
+          <li data-fragment><strong>Rights switch off by themselves</strong><span>When time is up the role is removed, and every step is in the audit log.</span></li>
+        </ol>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">Proof</p>
+        <h3 class="slide-title trim">Before and after, measured.</h3>
+        <table class="metrics-table">
+          <thead><tr><th>What changed</th><th>Before</th><th>After</th></tr></thead>
+          <tbody>
+            <tr><td>Stored keys in the deployment pipeline</td><td>A long-lived secret</td><td>None – tokens last about an hour</td></tr>
+            <tr><td>Admin roles that are always on</td><td>100%</td><td>0%</td></tr>
+            <tr><td>Removing a leaver's access</td><td>Manual, days</td><td>Automatic, minutes</td></tr>
+            <tr><td>Sign-in rules by risk</td><td>None</td><td>6 layered policies</td></tr>
+          </tbody>
+        </table>
+        <p class="slide-note">Every path was tested end to end in the lab tenant, including requests that were denied.</p>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">Results</p>
+        <h3 class="slide-title trim">Access that is earned, limited and removed on time.</h3>
+        <div class="kpi-row">
+          <div class="kpi"><b>0</b><span>stored secrets for the deployment pipeline to leak</span></div>
+          <div class="kpi"><b>6</b><span>sign-in rules, each matched to a specific risk</span></div>
+          <div class="kpi"><b>3</b><span>stages automated: joining, changing teams, leaving</span></div>
+          <div class="kpi"><b>1 h</b><span>short-term access that removes itself – no clean-up needed</span></div>
+        </div>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">What this shows</p>
+        <h3 class="slide-title trim">How I approach identity security.</h3>
+        <ul class="slide-points">
+          <li><strong>I remove standing access.</strong> Powerful rights are requested, time-limited and logged.</li>
+          <li><strong>I match security to risk.</strong> The more an account can do, the stronger the proof it needs.</li>
+          <li><strong>I automate the whole lifecycle.</strong> Including team changes, the step most setups skip.</li>
+        </ul>
+        <div class="slide-actions">
+          <a class="btn btn-primary" href="#overview">Read the full write-up ↓</a>
+          <a class="btn btn-secondary" href="../Hanqin_Lyu_Security_Resume.pdf">Download resume (PDF)</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="overview">
   <div class="wrap">
     <div class="section-head">
       <h2>Overview</h2>

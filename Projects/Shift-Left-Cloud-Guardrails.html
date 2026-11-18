@@ -10,6 +10,8 @@
 <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="stylesheet" href="../style.css">
 <script src="../theme.js" defer></script>
+<link rel="stylesheet" href="../briefing.css">
+<script src="../briefing.js" defer></script>
 <style>
   .evidence { margin: 20px 0 8px; }
   .evidence img {
@@ -72,7 +74,102 @@
   </div>
 </header>
 
-<section class="section">
+<section class="section" id="briefing">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>60-second briefing</h2>
+      <p>The short, non-technical version. The full technical write-up follows below.</p>
+    </div>
+
+    <div class="deck" data-deck="briefing" aria-label="60-second briefing: Shift-Left and Cloud Guardrails on Azure">
+
+      <article class="slide">
+        <p class="slide-kicker">The problem</p>
+        <h3 class="slide-title trim">One wrong setting can open a company's servers to the whole internet.</h3>
+        <p class="slide-body">Cloud infrastructure is now written as code and shipped many times a day. A single typo,
+          a leaked password or a rushed approval can reach production before anyone notices.</p>
+        <p class="slide-body">I set out to answer: <strong style="color:var(--ink)">what stops that mistake – and what still stops it if someone skips the review?</strong></p>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">What I built</p>
+        <h3 class="slide-title trim">A safety net engineers can see, and one nobody can switch off.</h3>
+        <ul class="slide-steps">
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2 2 4-4"/><rect x="4" y="4" width="16" height="16" rx="3"/></svg>
+            <strong>Automatic checks on every change</strong>
+            <span>Risky settings and leaked passwords are caught before anything is deployed.</span>
+            <em>GitHub Actions · Checkov · gitleaks</em>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/><path d="M3 3l18 18" /></svg>
+            <strong>No passwords to steal</strong>
+            <span>The pipeline signs in with short-lived identities, and a person approves every production change.</span>
+            <em>GitHub OIDC · approval gate</em>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M9 12h6"/></svg>
+            <strong>A rule built into Azure itself</strong>
+            <span>Even if someone skips the checks, Azure refuses the dangerous change.</span>
+            <em>Azure Policy</em>
+          </li>
+        </ul>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">How it works</p>
+        <h3 class="slide-title trim">Every change passes 4 checkpoints. Press Next to follow one.</h3>
+        <ol class="slide-flow">
+          <li data-fragment><strong>An engineer proposes a change</strong><span>Written as code and opened for review – nothing touches Azure yet.</span></li>
+          <li data-fragment><strong>Automatic checks</strong><span>Format, misconfiguration scan and password scan must all pass.</span></li>
+          <li data-fragment><strong>A person approves</strong><span>Production changes wait for a named reviewer. Merging alone never deploys.</span></li>
+          <li data-fragment><strong>Azure has the final say</strong><span>A platform rule rejects an open-to-the-internet server, whoever sends it.</span></li>
+        </ol>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">Proof</p>
+        <h3 class="slide-title trim">I tried to sneak the unsafe change past the checks. Azure blocked it.</h3>
+        <div class="slide-proof">
+          <a href="images/p2-policy-deny-403.png" target="_blank" rel="noopener" title="Open the full-size screenshot"><img src="images/p2-policy-deny-403.png" alt="Deployment log: Terraform Apply failed creating the rule AllowSSHAll with RequestDisallowedByPolicy" loading="lazy"></a>
+          <div>
+            <p class="slide-body">This is the real deployment log. The checks were bypassed on purpose, and Azure still answered
+              <strong style="color:var(--ink)">403 – disallowed by policy</strong>.</p>
+            <p class="slide-note">The same code was accepted while the rule was only watching (Audit). The block is the rule working, not a fluke.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">Results</p>
+        <h3 class="slide-title trim">Measured, not assumed.</h3>
+        <div class="kpi-row">
+          <div class="kpi"><b>2 / 2</b><span>deliberately planted mistakes caught before deployment</span></div>
+          <div class="kpi"><b>0</b><span>stored cloud passwords – nothing for an attacker to steal</span></div>
+          <div class="kpi"><b>3</b><span>automatic checks that every change must pass</span></div>
+          <div class="kpi"><b>1</b><span>human approval before anything reaches production</span></div>
+        </div>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">What this shows</p>
+        <h3 class="slide-title trim">How I approach cloud security.</h3>
+        <ul class="slide-points">
+          <li><strong>I build in layers.</strong> If one control is skipped, the next one still holds.</li>
+          <li><strong>I prove controls work.</strong> I test every check against a known-bad input before trusting it.</li>
+          <li><strong>I use AI tools safely.</strong> The coding assistant on this project had no access to the cloud account.</li>
+        </ul>
+        <div class="slide-actions">
+          <a class="btn btn-primary" href="#overview">Read the full write-up ↓</a>
+          <a class="btn btn-secondary" href="../Hanqin_Lyu_Security_Resume.pdf">Download resume (PDF)</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="overview">
   <div class="wrap">
     <div class="section-head">
       <h2>Overview</h2>

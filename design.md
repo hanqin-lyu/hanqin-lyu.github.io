@@ -97,6 +97,33 @@ Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉
 - 按钮的 `aria-label` / `title` 随状态变为 “Switch to dark mode / light mode”，`aria-pressed` 表示是否为 dark。
 - Mermaid 图的配色固定为浅色，所以 `diagram-block` 在两个主题下都保持浅色底（`diagram-surface`）。
 
+## Briefing（60 秒简报）
+
+给 HR、非技术 Hiring Manager 看的可翻页简报，放在每个已完成项目页的 hero 之后、Overview 之前（`<section id="briefing">`，标题 “60-second briefing”）。技术长文照旧在下面，两类读者各取所需。代码在根目录 `briefing.css` / `briefing.js`，零依赖，样式全部走 tokens。
+
+**六张固定结构**（`<article class="slide">`，每张一个 `slide-kicker` + `h3.slide-title.trim`）：
+
+| # | Kicker | 内容 | 组件 |
+|---|---|---|---|
+| 1 | The problem | 一句业务语言的风险 + “I set out to answer: …” | `slide-body` |
+| 2 | What I built | 三个零术语步骤，术语只放在小字里 | `slide-steps`（线性 SVG 图标 + `em` 技术标签） |
+| 3 | How it works | 四个节点的流程，每按一次 Next 点亮一个 | `slide-flow`，`li[data-fragment]` |
+| 4 | Proof | 一张**真实截图**（点击看原图，最高 360px 顶部裁切），没有截图就用前后对比表 | `slide-proof` / `metrics-table` |
+| 5 | Results | 4 个可验证数字，每个配一句大白话 | `kpi-row` |
+| 6 | What this shows | 三条可迁移能力 + “Read the full write-up ↓” / “Download resume (PDF)” | `slide-points` + `slide-actions` |
+
+**文案规则：** 澳洲英语，完全遵循上面“内容基础”（sentence case、两侧带空格的 en dash、2 及以上用数字且不以数字开头、不用牛津逗号）；每张正文 ≤ 25 词左右；不出现未解释的缩写；只写原文里有依据的事实和数字；不用 AI 生成图片——证据用原文截图，说明用 tokens 绘制的线性 SVG。
+
+**交互：**
+- 翻页：Next / 上一张按钮、进度点、← → / PageUp / PageDown / Home / End、触屏左右滑；每翻一页标题下播放一次 trim。
+- 自动播放**默认开启**：简报一半进入屏幕时开始，每张 6.5s、流程每步 2.2s，控制栏顶部有 `azure` 进度线；滚出屏幕或切走标签页时暂停、回来继续。读者手动操作、播完一遍、从深链打开、或开启 `prefers-reduced-motion` 时不自动播放；▶ / ⏸ 按钮或 P 键可随时切换。
+- 深链：`#briefing-N` 打开第 N 张并滚到简报，翻页时地址栏同步（`replaceState`）。
+- 全屏：固定覆盖层立即铺满窗口，并在支持时叠加原生全屏；Esc 或按钮退出。
+- 无 JS / 打印：所有幻灯片竖排完整可读；手机（≤760px）上卡片高度跟随当前这一张。
+- 读屏：`aria-roledescription="carousel"` / `"slide"`，`aria-live` 播报 “Slide 2 of 6”，非当前页 `inert`。
+
+**入口：** 首页已完成项目的卡片里有 “60-sec briefing →”（`card-briefing`，`ink-soft`），直达项目页 `#briefing`。
+
 ## 图像与图表
 
 - 截图放在 `evidence` 中：满宽、`line` 描边、`radius` 圆角，下接 `diagram-caption`。
@@ -128,6 +155,7 @@ Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉
 - 导航新增 About 锚点。
 - Light 主题改为低眩光配色（冷灰底、灰白卡片、柔和正文色）。
 - 主题切换按钮（月亮 / 太阳）与 `theme.js`；手机端导航改为两行。
+- 60 秒简报 Briefing（`briefing.css` / `briefing.js`）：六张固定结构、默认自动播放、深链与全屏；首页卡片新增 “60-sec briefing →”。
 
 
 ## Token 参考
@@ -247,6 +275,7 @@ Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉
 | 组件 | 分组 | 说明 |
 |---|---|---|
 | `Badge` | Identity | 认证与技术栈的胶囊标签，系统的签名元素，有 default / azure / verified / pending 四态。 |
+| `Briefing` | Content | 项目页的 60 秒简报：六张可翻页幻灯片，默认自动播放，给非技术读者。 |
 | `Button` | Actions | 两种按钮：主按钮（azure 实底）与次按钮（surface 描边）。 |
 | `Callout` | Content | 三种提示框：related-box（相关项目）、note-box（方法/限制说明）、progress-banner（进行中提示）。 |
 | `DataTable` | Content | 项目页的 metrics / stack 表格：mono 大写表头，首列加深。 |
@@ -256,7 +285,7 @@ Trim 是本系统唯一的“强调动效”，灵感来自柜门上的两根拉
 | `Hero` | Layout | 页面开头：eyebrow + h1 + 导语 + badge 行 + CTA 行。 |
 | `Kpi` | Content | 项目页的关键指标格：大号 azure 数字 + 一行说明。 |
 | `MetaRow` | Content | 项目页 hero 下的 mono 元信息行（时间、平台、角色）。 |
-| `ProjectCard` | Content | 首页的项目卡片：标题 + 状态胶囊 + 描述 + tag 行 + “View details →”。整张卡是一个链接。 |
+| `ProjectCard` | Content | 首页的项目卡片：标题 + 状态胶囊 + 描述 + tag 行 + “View details →”（已完成项目另有 “60-sec briefing →”）。整张卡是一个链接。 |
 | `SectionHead` | Layout | section 的 h2 与一段说明。 |
 | `SiteFooter` | Layout | 页脚：版权与 GitHub / LinkedIn / Email 链接，用 “·” 分隔。 |
 | `SiteNav` | Layout | 顶部 sticky 导航：左侧文字标 HanqinLyu，右侧 2–4 个文字链接，最后是主题切换按钮；≤640px 变两行。 |

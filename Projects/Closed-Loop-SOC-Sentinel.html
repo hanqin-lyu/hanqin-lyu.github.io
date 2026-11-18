@@ -10,6 +10,8 @@
 <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="stylesheet" href="../style.css">
 <script src="../theme.js" defer></script>
+<link rel="stylesheet" href="../briefing.css">
+<script src="../briefing.js" defer></script>
 <style>
   .evidence { margin: 20px 0 8px; }
   .evidence img {
@@ -75,7 +77,102 @@
   </div>
 </header>
 
-<section class="section">
+<section class="section" id="briefing">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>60-second briefing</h2>
+      <p>The short, non-technical version. The full technical write-up follows below.</p>
+    </div>
+
+    <div class="deck" data-deck="briefing" aria-label="60-second briefing: Closed-Loop SOC on Azure">
+
+      <article class="slide">
+        <p class="slide-kicker">The problem</p>
+        <h3 class="slide-title trim">Attacks don't wait for office hours. Someone has to notice – and respond – in minutes.</h3>
+        <p class="slide-body">Spotting an attack is only the start. The slow part is everything after it: look up the attacker,
+          alert the team, block them, write it all down.</p>
+        <p class="slide-body">I set out to answer: <strong style="color:var(--ink)">how much of that response can run on its own – safely – and leave proof of every step?</strong></p>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">What I built</p>
+        <h3 class="slide-title trim">A security alarm that also starts the response.</h3>
+        <ul class="slide-steps">
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.8"/></svg>
+            <strong>A real target for attackers</strong>
+            <span>A decoy server, deliberately exposed and fully isolated, attracts genuine attacks.</span>
+            <em>Honeypot · Azure</em>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/><path d="M11 8v3l2 1.5"/></svg>
+            <strong>Rules that spot the attack</strong>
+            <span>A set of 4 detection rules recognises break-in patterns and opens a case with the right priority.</span>
+            <em>Microsoft Sentinel · KQL · MITRE ATT&amp;CK</em>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3L5 13h6l-1 8 8-10h-6z"/></svg>
+            <strong>Automatic, safe responses</strong>
+            <span>Small automated jobs look up the attacker, alert the team and block them for 24 hours.</span>
+            <em>Logic Apps (SOAR)</em>
+          </li>
+        </ul>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">How it works</p>
+        <h3 class="slide-title trim">From attack to contained case in 4 steps. Press Next to follow one.</h3>
+        <ol class="slide-flow">
+          <li data-fragment><strong>The attack hits the decoy</strong><span>Every login attempt is recorded and arrives within minutes.</span></li>
+          <li data-fragment><strong>A rule opens a case</strong><span>Each case gets a severity, so the most serious one comes first.</span></li>
+          <li data-fragment><strong>Automatic first response</strong><span>The attacker is looked up, the team is told on Slack, the address is blocked for 24 hours.</span></li>
+          <li data-fragment><strong>A person makes the big calls</strong><span>Ending a session or locking an account stays a human decision.</span></li>
+        </ol>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">Proof</p>
+        <h3 class="slide-title trim">Real attacks, real cases – all on one dashboard.</h3>
+        <div class="slide-proof">
+          <a href="images/soc-workbook-overview.png" target="_blank" rel="noopener" title="Open the full-size screenshot"><img src="images/soc-workbook-overview.png" alt="SOC overview dashboard in the Azure portal: incidents by severity and new incidents over time" loading="lazy"></a>
+          <div>
+            <p class="slide-body">Live brute-force runs raised real cases at 3 severities. The serious one was
+              <strong style="color:var(--ink)">blocked, looked up and reported to the team before I touched it</strong>.</p>
+            <p class="slide-note">Counts come from the validation runs. Every block is logged with its expiry, so the dashboard itself is the evidence.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">Results</p>
+        <h3 class="slide-title trim">Fast where it's safe, careful where it matters.</h3>
+        <div class="kpi-row">
+          <div class="kpi"><b>4</b><span>detection rules, each tied to a known attack technique</span></div>
+          <div class="kpi"><b>10</b><span>automated jobs, each doing exactly one thing</span></div>
+          <div class="kpi"><b>24 h</b><span>blocks expire on their own – nobody stays locked out by mistake</span></div>
+          <div class="kpi"><b>0</b><span>permissions on the decoy server – if it's taken over, there's nothing to misuse</span></div>
+        </div>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">What this shows</p>
+        <h3 class="slide-title trim">How I run security operations.</h3>
+        <ul class="slide-points">
+          <li><strong>I automate the safe work.</strong> Reversible steps run on their own; risky decisions stay with a person.</li>
+          <li><strong>I test against real attacks.</strong> That is how I found a timing bug sample data would have hidden.</li>
+          <li><strong>I document what didn't work.</strong> Every surprise is diagnosed and written up, not hidden behind a green dashboard.</li>
+        </ul>
+        <div class="slide-actions">
+          <a class="btn btn-primary" href="#overview">Read the full write-up ↓</a>
+          <a class="btn btn-secondary" href="../Hanqin_Lyu_Security_Resume.pdf">Download resume (PDF)</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="overview">
   <div class="wrap">
     <div class="section-head">
       <h2>Overview</h2>

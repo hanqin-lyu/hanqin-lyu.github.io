@@ -83,7 +83,10 @@
           <span class="tag">Lifecycle automation</span>
           <span class="tag">GitHub Actions OIDC</span>
         </div>
-        <span class="card-link">View details →</span>
+        <span class="card-links">
+          <span class="card-link">View details →</span>
+          <span class="card-link card-briefing" data-briefing>60-sec briefing →</span>
+        </span>
       </a>
 
       <a class="project-card" href="Projects/Shift-Left-Cloud-Guardrails.html" style="display:block; color:inherit;">
@@ -105,7 +108,10 @@
           <span class="tag">Azure Policy</span>
           <span class="tag">Claude Code</span>
         </div>
-        <span class="card-link">View details →</span>
+        <span class="card-links">
+          <span class="card-link">View details →</span>
+          <span class="card-link card-briefing" data-briefing>60-sec briefing →</span>
+        </span>
       </a>
 
       <a class="project-card" href="Projects/Closed-Loop-SOC-Sentinel.html" style="display:block; color:inherit;">
@@ -126,7 +132,10 @@
           <span class="tag">Key Vault</span>
           <span class="tag">Terraform</span>
         </div>
-        <span class="card-link">View details →</span>
+        <span class="card-links">
+          <span class="card-link">View details →</span>
+          <span class="card-link card-briefing" data-briefing>60-sec briefing →</span>
+        </span>
       </a>
 
       <a class="project-card" href="Projects/AI-Multicloud-SOC.html" style="display:block; color:inherit;">
@@ -221,15 +230,24 @@
 
   // Clicking a project card: open the trim under its title, then go to the project page,
   // where the page title opens the same way. Modified clicks and reduced motion go straight through.
+  // "60-sec briefing →" inside a card goes to the same page, straight to its briefing (#briefing).
   document.addEventListener('click', function (e) {
     var card = e.target.closest('a.project-card');
-    if (!card || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!card || e.defaultPrevented || e.button !== 0) return;
+    var toBriefing = !!e.target.closest('[data-briefing]');
+    var dest = card.href + (toBriefing ? '#briefing' : '');
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+      if (toBriefing) { e.preventDefault(); window.open(dest, '_blank', 'noopener'); }
+      return;
+    }
     var title = card.querySelector('.trim');
-    if (!title) return;
+    if (!title || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (toBriefing) { e.preventDefault(); window.location.href = dest; }
+      return;
+    }
     e.preventDefault();
     title.classList.add('trim-play');
-    setTimeout(function () { window.location.href = card.href; }, 600);
+    setTimeout(function () { window.location.href = dest; }, 600);
   });
   // Coming back with the browser's Back button: reset the card so it can play again.
   window.addEventListener('pageshow', function () {

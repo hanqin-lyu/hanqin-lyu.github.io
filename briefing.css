@@ -1,0 +1,196 @@
+/* 60-second briefing — a small slide deck at the top of a project page, written for
+   non-technical readers. Every value comes from the tokens in style.css.
+   Without JavaScript, and when printed, all slides are shown one after another. */
+
+.deck {
+  background: var(--surface);
+  border: var(--border-hairline) solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.deck:focus-visible { outline: var(--focus-ring) solid var(--azure-bright); outline-offset: var(--focus-ring); }
+
+/* ---- Slides (shared by every mode) ---- */
+.slide { padding: var(--space-40) var(--space-48) var(--space-36); }
+.slide + .slide { border-top: var(--border-hairline) solid var(--line); } /* stacked mode only; hidden in deck mode */
+.slide-kicker {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--azure); margin: 0 0 var(--space-12);
+}
+.slide-title {
+  font-family: var(--font-display); font-size: 28px; line-height: 1.2; font-weight: 700;
+  color: var(--ink); margin: 0; max-width: 30ch;
+}
+.slide-body { margin: var(--space-24) 0 0; font-size: 17px; line-height: 1.6; color: var(--ink-soft); max-width: 62ch; }
+.slide-body + .slide-body { margin-top: var(--space-12); }
+.slide-note { margin: var(--space-12) 0 0; font-size: 14px; color: var(--ink-faint); max-width: 62ch; }
+
+/* Three steps: "what I built" */
+.slide-steps { list-style: none; padding: 0; margin: var(--space-28) 0 0; display: grid; gap: var(--space-16); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.slide-steps li { border: var(--border-hairline) solid var(--line); border-radius: var(--radius); padding: var(--space-18) var(--space-18) var(--space-16); background: var(--bg); }
+.slide-steps svg { width: 28px; height: 28px; stroke: var(--azure); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; display: block; margin-bottom: var(--space-12); }
+.slide-steps strong { display: block; color: var(--ink); font-size: 16px; line-height: 1.35; }
+.slide-steps span { display: block; margin-top: var(--space-6); font-size: 14.5px; color: var(--ink-soft); line-height: 1.5; }
+.slide-steps em { display: block; margin-top: var(--space-10); font-style: normal; font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-faint); }
+
+/* Flow: "how it works" — nodes light up one at a time as fragments */
+.slide-flow { list-style: none; padding: 0; margin: var(--space-28) 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-20); counter-reset: flow; }
+.slide-flow li {
+  position: relative; counter-increment: flow;
+  border: var(--border-hairline) solid var(--line); border-radius: var(--radius);
+  padding: var(--space-16); background: var(--bg);
+  transition: border-color 0.3s ease, background-color 0.3s ease, opacity 0.3s ease;
+}
+.slide-flow li::before {
+  content: counter(flow); display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: var(--radius-round);
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 600;
+  border: var(--border-hairline) solid var(--line-strong); color: var(--ink-faint); margin-bottom: var(--space-10);
+}
+.slide-flow li:not(:last-child)::after {
+  content: "→"; position: absolute; right: calc(-1 * var(--space-20)); top: 50%; width: var(--space-20);
+  transform: translateY(-50%); text-align: center; color: var(--ink-faint); font-size: 14px;
+}
+.slide-flow strong { display: block; color: var(--ink); font-size: 15px; line-height: 1.35; }
+.slide-flow span { display: block; margin-top: var(--space-6); font-size: 13.5px; color: var(--ink-soft); line-height: 1.45; }
+.slide-flow li.is-current { border-color: var(--azure); background: var(--surface-tint); }
+.slide-flow li.is-current::before,
+.slide-flow li.is-shown::before { border-color: var(--azure); color: var(--azure); }
+.slide-flow li.is-last { border-color: var(--azure); }
+
+/* Proof: one real screenshot */
+.slide-proof { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--space-28); align-items: start; margin-top: var(--space-24); }
+.slide-proof img { width: 100%; height: auto; max-height: 360px; object-fit: cover; object-position: top; display: block; border: var(--border-hairline) solid var(--line); border-radius: var(--radius); background: var(--bg); }
+.slide-proof .slide-body { margin-top: 0; font-size: 16px; }
+.slide-proof a { display: block; border-radius: var(--radius); cursor: zoom-in; }
+.slide-proof a:hover img { border-color: var(--azure); }
+
+/* Results: reuse the KPI tiles */
+.slide .kpi-row { margin: var(--space-28) 0 0; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.slide .kpi { background: var(--bg); }
+
+/* What this shows */
+.slide-points { list-style: none; padding: 0; margin: var(--space-24) 0 0; display: grid; gap: var(--space-14); max-width: 62ch; }
+.slide-points li { padding-left: var(--space-24); position: relative; color: var(--ink-soft); font-size: 16px; line-height: 1.55; }
+.slide-points li::before { content: ""; position: absolute; left: 0; top: 0.72em; width: 12px; height: 2px; border-radius: 1px; background: var(--azure); }
+.slide-points strong { color: var(--ink); }
+.slide-actions { display: flex; flex-wrap: wrap; gap: var(--space-14); margin-top: var(--space-28); }
+
+/* ---- Deck mode (JavaScript ready) ---- */
+.deck--ready .deck-viewport { display: grid; touch-action: pan-y; }
+.deck--ready .slide {
+  grid-area: 1 / 1;                     /* every slide in the same cell: the tallest sets the height, nothing jumps */
+  border-top: none;
+  opacity: 0; visibility: hidden; transform: translateX(16px);
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.35s;
+}
+.deck--ready .slide.is-active {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
+}
+.deck--ready .slide.is-before { transform: translateX(-16px); }
+.deck--noanim .slide, .deck--noanim .slide-flow li { transition: none !important; }
+.deck--ready .slide-flow li { opacity: 0.45; }
+.deck--ready .slide-flow li.is-shown { opacity: 1; }
+
+.deck-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-16);
+  padding: var(--space-12) var(--space-16) var(--space-12) var(--space-24);
+  border-top: var(--border-hairline) solid var(--line);
+}
+.deck-dots { display: flex; gap: var(--space-8); align-items: center; }
+.deck-dot {
+  width: 22px; height: 22px; padding: 0; border: none; background: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-pill);
+}
+.deck-dot::before { content: ""; width: 18px; height: 3px; border-radius: 2px; background: var(--line-strong); transition: background-color 0.2s ease, width 0.3s ease; }
+.deck-dot[aria-current="true"]::before { width: 28px; background: var(--azure); }
+.deck-dot:hover::before { background: var(--azure-bright); }
+.deck-dot[aria-current="true"] { width: 32px; }
+.deck-nav { display: flex; align-items: center; gap: var(--space-8); }
+.deck-count { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-faint); min-width: 4.5ch; text-align: right; margin-right: var(--space-6); white-space: nowrap; }
+.deck-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-6);
+  height: 36px; min-width: 36px; padding: 0 var(--space-12);
+  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  border-radius: var(--radius); border: var(--border-hairline) solid var(--line-strong);
+  background: var(--surface); color: var(--ink); cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+.deck-btn:hover { border-color: var(--azure); color: var(--azure); }
+.deck-btn:disabled { opacity: 0.4; cursor: default; border-color: var(--line-strong); color: var(--ink); }
+.deck-btn--primary { background: var(--azure); border-color: var(--azure); color: var(--on-azure); }
+.deck-btn--primary:hover { background: var(--azure-bright); border-color: var(--azure-bright); color: var(--on-azure); }
+.deck-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.deck-btn:focus-visible, .deck-dot:focus-visible { outline: var(--focus-ring) solid var(--azure-bright); outline-offset: var(--focus-ring); }
+/* Autoplay: play/pause button and a thin progress line along the top of the control bar */
+.deck-bar { position: relative; }
+.deck-progress {
+  position: absolute; left: 0; right: 0; top: -1px; height: 2px;
+  background: var(--azure); transform: scaleX(0); transform-origin: left center; pointer-events: none;
+}
+.deck-btn--play .icon-play path { fill: currentColor; stroke: none; }
+.deck-btn--play .icon-pause { display: none; }
+.deck--playing .deck-btn--play .icon-play { display: none; }
+.deck--playing .deck-btn--play .icon-pause { display: block; }
+.deck--playing .deck-btn--play { border-color: var(--azure); color: var(--azure); }
+
+.deck-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Fullscreen: the browser's own, or a fixed overlay where that isn't available */
+.deck:fullscreen, .deck.deck--overlay {
+  border: none; border-radius: 0; background: var(--bg);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.deck.deck--overlay { position: fixed; inset: 0; z-index: 100; padding: var(--space-24); overflow-y: auto; }
+.deck:fullscreen .deck-viewport, .deck--overlay .deck-viewport { width: min(1040px, 100%); margin: auto auto 0; }
+.deck:fullscreen .deck-bar, .deck--overlay .deck-bar { width: min(1040px, 100%); margin: 0 auto auto; border-top-color: transparent; }
+.deck:fullscreen .slide-title, .deck--overlay .slide-title { font-size: 36px; }
+.deck:fullscreen .slide-body, .deck--overlay .slide-body { font-size: 19px; }
+.icon-exit { display: none; }
+.deck:fullscreen .icon-enter, .deck--overlay .icon-enter { display: none; }
+.deck:fullscreen .icon-exit, .deck--overlay .icon-exit { display: block; }
+
+/* ---- Small screens ---- */
+@media (max-width: 760px) {
+  .slide { padding: var(--space-28) var(--space-20) var(--space-24); }
+  .slide-title { font-size: 22px; }
+  .slide-body { font-size: 16px; }
+  .slide-steps, .slide-flow, .slide-proof { grid-template-columns: minmax(0, 1fr); }
+  .slide .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-10); }
+  .slide .kpi { padding: var(--space-12) var(--space-14); }
+  .slide .kpi b { font-size: 24px; }
+  .slide .kpi span { font-size: 12.5px; }
+  .slide-steps li { padding: var(--space-14); }
+  .slide-steps svg { display: none; }
+  .slide-flow { gap: var(--space-16); }
+  .slide-flow li { padding: var(--space-12) var(--space-14); }
+  /* Slides differ a lot in height once stacked, so on phones the deck takes the current slide's height. */
+  .deck--ready .slide:not(.is-active) { display: none; }
+  .slide-flow li:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: calc(-1 * var(--space-20)); transform: translateX(-50%); height: var(--space-20); line-height: var(--space-20); }
+  .deck-bar { padding-left: var(--space-16); }
+  .deck-dots { gap: var(--space-4); }
+  .deck-dot { width: 12px; }
+  .deck-dot::before { width: 8px; }
+  .deck-dot[aria-current="true"] { width: 20px; }
+  .deck-dot[aria-current="true"]::before { width: 16px; }
+  .deck-btn-label { display: none; }
+  .deck-count { display: none; }
+  .deck-bar { gap: var(--space-8); padding-right: var(--space-12); }
+  .deck-nav { gap: var(--space-6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck--ready .slide, .deck--ready .slide.is-active, .slide-flow li, .deck-dot::before { transition: none; }
+  .deck--ready .slide, .deck--ready .slide.is-before { transform: none; }
+  .deck-progress { display: none; }
+}
+
+/* Print / save as PDF: every slide, one after another, nothing hidden */
+@media print {
+  .deck-bar { display: none; }
+  .deck--ready .deck-viewport { display: block; }
+  .deck--ready .slide { opacity: 1; visibility: visible; transform: none; border-top: var(--border-hairline) solid var(--line); break-inside: avoid; }
+  .deck--ready .slide:first-child { border-top: none; }
+  .deck--ready .slide-flow li { opacity: 1; }
+}
