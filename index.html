@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hanqin Lyu — Cloud Security Engineer & SOC Analyst</title>
-<meta name="description" content="Cloud security engineer and SOC analyst portfolio — Azure, Microsoft Sentinel, Entra ID, guardrails as code">
+<meta name="description" content="Cloud security engineering portfolio: Entra ID identity governance, Azure guardrails as code, and Microsoft Sentinel detection with automated response.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
@@ -31,13 +31,13 @@
 
 <header class="hero">
   <div class="wrap">
-    <div class="eyebrow">Cloud Security Engineer / SOC Analyst / Identity</div>
+    <div class="eyebrow">Cloud Security Engineer / Identity / Detection &amp; Response</div>
     <h1>Hanqin Lyu</h1>
     <p class="lede">
-      Cloud security engineer moving deeper into security operations. I build Azure
-      guardrails as code and Entra ID identity governance, and I am now adding
-      Microsoft Sentinel detection and response — so that prevention, identity and
-      detection are covered end to end.
+      I engineer cloud security as one system: identity governance in Entra ID,
+      guardrails as code on Azure, and detection and automated response in
+      Microsoft Sentinel. Prevention, identity and detection — designed to work
+      together, deployed as code.
     </p>
     <div class="badge-row" id="certifications">
       <span class="badge azure">Azure</span>
@@ -60,8 +60,8 @@
   <div class="wrap">
     <div class="section-head">
       <h2>Projects</h2>
-      <p>Projects that together form a complete cloud security engineering
-        narrative: identity governance, infrastructure guardrails, and detection &amp; response.</p>
+      <p>One security architecture, built layer by layer: identity governance,
+        infrastructure guardrails, detection and response, and incident investigation.</p>
     </div>
 
     <div class="card-grid">
@@ -71,9 +71,9 @@
           <h3 class="trim">Zero-Trust Identity Governance Platform on Entra ID</h3>
           <span class="status-pill">GOVERNED</span>
         </div>
-        <p>Covers PIM least-privilege access, risk-adaptive Conditional Access
-          policies, secret-free Workload Identity Federation, and Entitlement
-          Management with lifecycle automation.</p>
+        <p>Enforces least privilege with PIM, adapts access to sign-in risk with
+          Conditional Access, removes pipeline secrets with Workload Identity Federation,
+          and governs access through Entitlement Management with lifecycle automation.</p>
         <div class="tag-row">
           <span class="tag">Entra ID</span>
           <span class="tag">PIM</span>
@@ -91,10 +91,11 @@
           <h3 class="trim">Shift-Left &amp; Cloud Guardrails on Azure</h3>
           <span class="status-pill">ENFORCED</span>
         </div>
-        <p>Terraform + GitHub Actions pipeline with 3 pre-deployment gates and secret-free OIDC
-          identities, backed by a subscription-level Azure Policy: the same code that deployed
-          under Audit was rejected with a 403 under Deny after the CI checks were bypassed.
-          Developed with Claude Code under a written contract and no cloud credentials.</p>
+        <p>A Terraform and GitHub Actions pipeline with three pre-deployment gates and
+          secret-free OIDC identities, backed by a subscription-level Azure Policy. The proof:
+          with the CI gates bypassed, the same code that deployed under Audit was rejected
+          with a 403 under Deny. Built with Claude Code under a written contract, with no
+          cloud credentials.</p>
         <div class="tag-row">
           <span class="tag">Terraform</span>
           <span class="tag">Azure Verified Modules</span>
@@ -112,10 +113,10 @@
           <h3 class="trim">Closed-Loop SOC on Azure: Sentinel Detection &amp; SOAR Response</h3>
           <span class="status-pill">AUTOMATED</span>
         </div>
-        <p>An SSH honeypot in an isolated network feeds Microsoft Sentinel; four KQL
-          detections mapped to MITRE ATT&amp;CK raise incidents, and ten Logic Apps
-          playbooks enrich, notify, block, contain and close them — the detection-and-response
-          counterpart to the identity and guardrail projects. Deployed and validated end to end as Terraform.</p>
+        <p>An SSH honeypot in an isolated network feeds Microsoft Sentinel. Four KQL
+          detections mapped to MITRE ATT&amp;CK raise incidents; ten Logic Apps playbooks
+          enrich, notify, block, contain and close them. The full loop is deployed as
+          Terraform and validated end to end.</p>
         <div class="tag-row">
           <span class="tag">Microsoft Sentinel</span>
           <span class="tag">KQL</span>
@@ -133,10 +134,10 @@
           <h3 class="trim">Multi-Cloud SOC: Cross-Cloud Identity Investigation</h3>
           <span class="status-pill in-progress">PLANNED</span>
         </div>
-        <p>One stolen identity moves from Entra ID into Azure, into AWS through federation and
-          onto a machine. Sentinel joins the steps into one incident; the investigation works out
-          the blast radius — what the identity could reach versus what it touched — and contains
-          it in both clouds, with the closed-loop SOC's response times as the baseline to beat.</p>
+        <p>One stolen identity crosses from Entra ID into Azure, through federation into AWS,
+          and onto a host. Sentinel correlates every step into a single incident; the
+          investigation separates what the identity could reach from what it actually touched,
+          then contains it in both clouds — measured against the closed-loop SOC's response times.</p>
         <div class="tag-row">
           <span class="tag">Microsoft Sentinel</span>
           <span class="tag">Entra ID</span>
@@ -154,10 +155,10 @@
           <h3 class="trim">Endpoint Intrusion Investigation Lab</h3>
           <span class="status-pill in-progress">IN PROGRESS</span>
         </div>
-        <p>A four-step intrusion on a Windows Server with Defender for Endpoint — encoded
-          PowerShell, scheduled-task persistence, a new local admin and an LSASS access attempt —
-          investigated from the alert only and written up as a client-facing post-incident report.
-          Real telemetry from my own lab, no synthetic logs.</p>
+        <p>A four-stage intrusion on a Windows Server protected by Defender for Endpoint —
+          encoded PowerShell, scheduled-task persistence, a rogue local admin and an LSASS access
+          attempt — investigated from the alert alone and delivered as a client-facing
+          post-incident report. Real telemetry from my own lab; no synthetic logs.</p>
         <div class="tag-row">
           <span class="tag">Defender for Endpoint</span>
           <span class="tag">Advanced Hunting</span>
@@ -175,10 +176,10 @@
           <h3 class="trim">M365 Account Compromise &amp; BEC Investigation Lab</h3>
           <span class="status-pill in-progress">PLANNED</span>
         </div>
-        <p>An account compromise and business email compromise simulated in a Microsoft 365 E5
-          trial tenant — phishing, an unusual sign-in, a malicious OAuth consent grant, an inbox
-          forwarding rule and internal spread — investigated from the alert in the Defender portal,
-          contained and hardened, and written up as a client-facing post-incident report.</p>
+        <p>Account takeover and business email compromise in a Microsoft 365 E5 lab tenant —
+          phishing, an anomalous sign-in, a malicious OAuth consent grant, an inbox forwarding
+          rule and internal spread — investigated from the alert in the Defender portal,
+          contained, hardened, and delivered as a client-facing post-incident report.</p>
         <div class="tag-row">
           <span class="tag">Microsoft 365 E5</span>
           <span class="tag">Microsoft Defender XDR</span>
@@ -198,7 +199,7 @@
   <div class="wrap">
     <div class="section-head">
       <h2>About</h2>
-      <p>I have a certificate IV in the cybersecurity field and spent time as an intern supporting PCI DSS QSA assessments — reviewing control evidence and mapping technical configurations back to compliance requirements. I hold SC-900, SC-200, SC-300 and SC-500 alongside CompTIA Security+, and SC-100 is in progress. With SC-200 done, I am focusing on security operations: Microsoft Sentinel, KQL detections mapped to MITRE ATT&amp;CK, and automated incident response. My Entra ID and Azure projects (documented here) provide the identity and infrastructure side of that picture.</p>
+      <p>I hold a Certificate IV in cybersecurity. As an intern on PCI DSS QSA assessments, I reviewed control evidence and mapped technical configurations to compliance requirements — the discipline behind every project here: each control is tied to evidence. Certified in CompTIA Security+, SC-900, SC-200, SC-300 and SC-500; SC-100 (Cybersecurity Architect) is in progress. My focus is security operations — Microsoft Sentinel, KQL detections mapped to MITRE ATT&amp;CK, and automated response — built on the identity and infrastructure foundations documented above.</p>
     </div>
   </div>
 </section>
