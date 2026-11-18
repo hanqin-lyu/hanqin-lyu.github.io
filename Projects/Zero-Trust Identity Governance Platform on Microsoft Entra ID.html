@@ -72,8 +72,8 @@
         <tr><td>Average privilege activation time</td><td>Manual, ad hoc</td><td>Minutes, with enforced approval + MFA</td></tr>
         <tr><td>Offboarding → full access revocation</td><td>Manual, days</td><td>Automated, minutes</td></tr>
         <tr><td>Conditional Access coverage</td><td>None (Security Defaults only)</td><td>6 layered policies by risk scenario</td></tr>
-        <tr><td>Standing access packages with no expiry or review</td><td>N/A (no prior system)</td><td>0 — every package has either a hard expiry or a recurring review</td></tr>
-        <tr><td>Offboarding tasks requiring manual follow-up</td><td>N/A (no prior system)</td><td>0 — token revocation, disablement, and group removal fully automated</td></tr>
+        <tr><td>Standing access packages with no expiry or review</td><td>N/A (no prior system)</td><td>0 – every package has either a hard expiry or a recurring review</td></tr>
+        <tr><td>Offboarding tasks requiring manual follow-up</td><td>N/A (no prior system)</td><td>0 – token revocation, disablement, and group removal fully automated</td></tr>
       </tbody>
     </table>
   </div>
@@ -97,18 +97,18 @@ sequenceDiagram
 
     GA->>GH: Request OIDC token for this workflow run
     GH-->>GA: Short-lived signed JWT
-    GA->>Entra: Present JWT (client-id, tenant-id — no secret)
+    GA->>Entra: Present JWT (client-id, tenant-id – no secret)
     Entra->>Entra: Validate JWT against Federated Credential trust
     Entra-->>GA: Issue Azure AD access token
     GA->>Azure: Call ARM API with access token
-    Note over GA,Azure: Token is scoped to this exact workflow run and repo/branch — cannot be replayed elsewhere
+    Note over GA,Azure: Token is scoped to this exact workflow run and repo/branch – cannot be replayed elsewhere
       </pre>
     </div>
     <h3 style="font-size:18px; margin:40px 0 4px;">Managed identity vs workload identity federation – same goal, different hosting boundary</h3>
     <p style="color:var(--ink-soft); max-width:70ch; margin-bottom:16px;">
       Both paths achieve secret-free access to the same Key Vault, but which
       one is available depends entirely on where the calling workload actually
-      runs — not on which tool "looks more modern."
+      runs – not on which tool "looks more modern."
     </p>
     <div class="diagram-block">
       <pre class="mermaid">
@@ -130,8 +130,8 @@ flowchart TB
       </thead>
       <tbody>
         <tr><td>Where it can run</td><td>Only on Azure-hosted resources (VM, App Service, Automation Account, etc.)</td><td>Any platform that can present an OIDC token (GitHub Actions, GitLab CI, other clouds)</td></tr>
-        <tr><td>Setup required</td><td>Toggle "System assigned" identity on the resource — no App Registration</td><td>App Registration + Federated Credential scoped to a specific repo/branch</td></tr>
-        <tr><td>Credential exposure</td><td>None — Azure manages the identity lifecycle entirely</td><td>None — short-lived OIDC token, scoped to the exact workflow run</td></tr>
+        <tr><td>Setup required</td><td>Toggle "System assigned" identity on the resource – no App Registration</td><td>App Registration + Federated Credential scoped to a specific repo/branch</td></tr>
+        <tr><td>Credential exposure</td><td>None – Azure manages the identity lifecycle entirely</td><td>None – short-lived OIDC token, scoped to the exact workflow run</td></tr>
         <tr><td>Used in this project for</td><td>Automation Account Runbook reading a Key Vault secret</td><td>GitHub Actions pipeline reading the same Key Vault secret</td></tr>
       </tbody>
     </table>
@@ -149,12 +149,12 @@ flowchart TB
         <tr><th>Policy</th><th>Scope</th><th>Control</th></tr>
       </thead>
       <tbody>
-        <tr><td>CA001a — Baseline MFA</td><td>All users (break-glass excluded)</td><td>Require MFA (any method)</td></tr>
-        <tr><td>CA001b — Privileged role hardening</td><td>Privileged Roles</td><td>Require phishing-resistant MFA (FIDO2 / Passkey / certificate)</td></tr>
-        <tr><td>CA002a — Sign-in risk response</td><td>All users</td><td>Medium/high sign-in risk → Require MFA</td></tr>
-        <tr><td>CA002b — User risk response</td><td>All users</td><td>High user risk → Require password change (SSPR)</td></tr>
-        <tr><td>CA003 — Legacy auth blocking</td><td>All users</td><td>Block legacy authentication and browser clients</td></tr>
-        <tr><td>CA004 — Unmanaged device restriction</td><td>All users</td><td>Session controls — no download</td></tr>
+        <tr><td>CA001a – Baseline MFA</td><td>All users (break-glass excluded)</td><td>Require MFA (any method)</td></tr>
+        <tr><td>CA001b – Privileged role hardening</td><td>Privileged Roles</td><td>Require phishing-resistant MFA (FIDO2 / Passkey / certificate)</td></tr>
+        <tr><td>CA002a – Sign-in risk response</td><td>All users</td><td>Medium/high sign-in risk → Require MFA</td></tr>
+        <tr><td>CA002b – User risk response</td><td>All users</td><td>High user risk → Require password change (SSPR)</td></tr>
+        <tr><td>CA003 – Legacy auth blocking</td><td>All users</td><td>Block legacy authentication and browser clients</td></tr>
+        <tr><td>CA004 – Unmanaged device restriction</td><td>All users</td><td>Session controls – no download</td></tr>
       </tbody>
     </table>
 
@@ -169,9 +169,9 @@ flowchart TB
 flowchart LR
     A["Attacker phishes<br/>a credential via AiTM proxy"] --> B{"Which account?"}
     B -->|"Standard user<br/>(CA001a: MFA)"| C["OTP/push captured<br/>through the proxy too"]
-    C --> D["Session hijacked —<br/>scoped to that user only"]
+    C --> D["Session hijacked –<br/>scoped to that user only"]
     B -->|"Privileged role<br/>(CA001b: phishing-resistant)"| E["FIDO2 key performs<br/>origin-bound handshake"]
-    E --> F["Handshake fails against<br/>proxy domain — access denied"]
+    E --> F["Handshake fails against<br/>proxy domain – access denied"]
       </pre>
     </div>
   </div>
@@ -183,7 +183,7 @@ flowchart LR
   <div class="wrap">
     <div class="section-head">
       <h2>Module 3: privileged access management (PIM)</h2>
-      <p>Every activation is time-bound, justified, and auditable — nothing is standing.</p>
+      <p>Every activation is time-bound, justified, and auditable – nothing is standing.</p>
     </div>
     <div class="diagram-block">
       <pre class="mermaid">
@@ -202,7 +202,7 @@ sequenceDiagram
     Approver->>PIM: Approve (time-bound, e.g. 4h)
     PIM->>Log: Record activation event
     PIM-->>User: Role active (auto-expires)
-    Note over PIM,Log: Role automatically deactivates at expiry — no standing access
+    Note over PIM,Log: Role automatically deactivates at expiry – no standing access
       </pre>
     </div>
   </div>
@@ -225,7 +225,7 @@ sequenceDiagram
     Requester->>AP: Submit request + justification
     AP->>Approver: Route for approval
     alt Denied
-        Approver-->>Requester: Deny — no access granted
+        Approver-->>Requester: Deny – no access granted
     else Approved
         Approver-->>AP: Approve
         AP->>Grp: Add requester to group
@@ -240,7 +240,7 @@ sequenceDiagram
         <tr><th>Package</th><th>Lifecycle model</th><th>Tested paths</th></tr>
       </thead>
       <tbody>
-        <tr><td>ShortTerm-Access-package</td><td>Hard expiration, 1 hour after approval — no manual cleanup</td><td>Request → Deny (verified no access granted) → Request → Approve → verified group membership → verified automatic removal after expiry</td></tr>
+        <tr><td>ShortTerm-Access-package</td><td>Hard expiration, 1 hour after approval – no manual cleanup</td><td>Request → Deny (verified no access granted) → Request → Approve → verified group membership → verified automatic removal after expiry</td></tr>
         <tr><td>Standing-Access-package</td><td>No fixed expiration; recurring Access Review with a named reviewer (not self-review) and auto-remove on non-response</td><td>Request → Approve → group membership verified</td></tr>
       </tbody>
     </table>
@@ -283,11 +283,11 @@ flowchart LR
       <li><strong>1. Application access management</strong>
         <span>Zero-secret Workload Identity Federation between GitHub Actions and Entra ID via OIDC, replacing long-lived client secrets with per-run federated tokens scoped to a specific repository, branch, and environment.</span></li>
       <li><strong>2. Adaptive authentication & access</strong>
-        <span>Six layered Conditional Access policies matched to specific risk scenarios: baseline MFA for all users, phishing-resistant authentication strength for privileged roles, sign-in and user risk response tied to Identity Protection, legacy authentication blocking, and session controls for unmanaged devices — with a protected break-glass account excluded from every policy.</span></li>
+        <span>Six layered Conditional Access policies matched to specific risk scenarios: baseline MFA for all users, phishing-resistant authentication strength for privileged roles, sign-in and user risk response tied to Identity Protection, legacy authentication blocking, and session controls for unmanaged devices – with a protected break-glass account excluded from every policy.</span></li>
       <li><strong>3. Privileged access governance</strong>
-        <span>Conversion of high-privilege roles from Permanent Active to PIM Eligible, spanning both Microsoft Entra directory roles (Global Administrator, Privileged Role Administrator...) and Azure resource roles (Key Vault Secrets Officer, Automation Contributor...) — with enforced MFA, activation duration limits, and a documented fix for a resource-group-level role inheriting further than intended into child resources.</span></li>
+        <span>Conversion of high-privilege roles from Permanent Active to PIM Eligible, spanning both Microsoft Entra directory roles (Global Administrator, Privileged Role Administrator...) and Azure resource roles (Key Vault Secrets Officer, Automation Contributor...) – with enforced MFA, activation duration limits, and a documented fix for a resource-group-level role inheriting further than intended into child resources.</span></li>
       <li><strong>4. Identity lifecycle governance</strong>
-        <span>Two Access Package lifecycle models tested end to end (hard 1-hour expiry vs. standing access with recurring Access Review), plus full Joiner-Mover-Leaver Lifecycle Workflow automation — including the department-change Mover workflow that most implementations skip, which is where real-world privilege creep actually accumulates.</span></li>
+        <span>Two Access Package lifecycle models tested end to end (hard 1-hour expiry vs. standing access with recurring Access Review), plus full Joiner-Mover-Leaver Lifecycle Workflow automation – including the department-change Mover workflow that most implementations skip, which is where real-world privilege creep actually accumulates.</span></li>
     </ul>
   </div>
 </section>
@@ -299,21 +299,21 @@ flowchart LR
     </div>
     <ul class="decision-list">
       <li><strong>Why Workload Identity Federation over Managed Identity?</strong>
-        <span>Tested both against the same Key Vault: Managed Identity requires the caller to be an Azure-hosted resource, since Azure binds the identity at the infrastructure layer — GitHub Actions runs on GitHub's own servers, so it doesn't qualify. Federation solves this by establishing trust at the OIDC protocol layer instead of resource ownership, making it the only viable zero-secret option for external CI/CD platforms.</span></li>
+        <span>Tested both against the same Key Vault: Managed Identity requires the caller to be an Azure-hosted resource, since Azure binds the identity at the infrastructure layer – GitHub Actions runs on GitHub's own servers, so it doesn't qualify. Federation solves this by establishing trust at the OIDC protocol layer instead of resource ownership, making it the only viable zero-secret option for external CI/CD platforms.</span></li>
       <li><strong>Why risk signals live inside Conditional Access rather than legacy Identity Protection policies?</strong>
         <span>Microsoft's current guidance consolidates risk-based conditions into Conditional Access for a single, unified policy surface rather than two separate enforcement points.</span></li>
       <li><strong>Why Eligible for every sensitive role?</strong>
-        <span>Standing privilege is the single largest reduction in blast radius available without impacting legitimate work — the cost is a few seconds of activation friction per use.</span></li>
+        <span>Standing privilege is the single largest reduction in blast radius available without impacting legitimate work – the cost is a few seconds of activation friction per use.</span></li>
       <li><strong>Why extending PIM beyond directory roles to Azure resource roles?</strong>
-        <span>Most PIM implementations only cover Microsoft Entra directory roles (Global Administrator, etc.). This project also brought Azure resource-level roles into PIM — Key Vault and Automation Account access — since over-permissioned resource access is at least as common a risk in practice.</span></li>
+        <span>Most PIM implementations only cover Microsoft Entra directory roles (Global Administrator, etc.). This project also brought Azure resource-level roles into PIM – Key Vault and Automation Account access – since over-permissioned resource access is at least as common a risk in practice.</span></li>
       <li><strong>Why RBAC to resource scopes?</strong>
-        <span>After assigning Contributor at the resource group level, the same role appeared — inherited, not duplicated — on every child resource inside it, including the Automation Account where a narrower role was intended. Removed the resource-group-level assignment and kept only resource-scoped roles, since RBAC assignments at a parent scope silently propagate to everything underneath.</span></li>
+        <span>After assigning Contributor at the resource group level, the same role appeared – inherited, not duplicated – on every child resource inside it, including the Automation Account where a narrower role was intended. Removed the resource-group-level assignment and kept only resource-scoped roles, since RBAC assignments at a parent scope silently propagate to everything underneath.</span></li>
       <li><strong>Why the break-glass account still needs MFA(passkey)?</strong>
-        <span>Originally configured with no MFA at all, per older guidance. Microsoft's platform-level mandatory MFA enforcement for the Azure portal, Entra admin center, and Intune admin center (phased in from October 2024) applies even to emergency access accounts and cannot be bypassed via Conditional Access exclusions — it's enforced at the client application layer, independent of tenant policy. Resolved by registering a FIDO2 passkey(Simulate with Mac touch ID) on the break-glass account, per Microsoft's current recommendation for emergency accounts.</span></li>
+        <span>Originally configured with no MFA at all, per older guidance. Microsoft's platform-level mandatory MFA enforcement for the Azure portal, Entra admin center, and Intune admin center (phased in from October 2024) applies even to emergency access accounts and cannot be bypassed via Conditional Access exclusions – it's enforced at the client application layer, independent of tenant policy. Resolved by registering a FIDO2 passkey(Simulate with Mac touch ID) on the break-glass account, per Microsoft's current recommendation for emergency accounts.</span></li>
       <li><strong>Why Global Administrator wasn't enough to configure Lifecycle Workflows?</strong>
-        <span>Attempting to open Lifecycle Workflows while signed in as Global Administrator returned a 401 error. The feature requires the dedicated Lifecycle Workflows Administrator role rather than trusting GA's implied permissions — a small but real example of Microsoft's own newer governance features moving toward least-privilege role design rather than a catch-all admin role.</span></li>
+        <span>Attempting to open Lifecycle Workflows while signed in as Global Administrator returned a 401 error. The feature requires the dedicated Lifecycle Workflows Administrator role rather than trusting GA's implied permissions – a small but real example of Microsoft's own newer governance features moving toward least-privilege role design rather than a catch-all admin role.</span></li>
       <li><strong>Why the default Microsoft Leaver template got a risky task must be removed before use?</strong>
-        <span>The stock Leaver template included a permanent account-deletion task. Testing it with <code>Days from event: 0</code> deleted the test account immediately rather than just disabling it — recovered via Entra ID's 30-day soft-delete restore. Disablement and token revocation should happen immediately on a leave date; permanent deletion is a separate, later-stage decision that shouldn't be bundled into day-zero offboarding by default.</span></li>
+        <span>The stock Leaver template included a permanent account-deletion task. Testing it with <code>Days from event: 0</code> deleted the test account immediately rather than just disabling it – recovered via Entra ID's 30-day soft-delete restore. Disablement and token revocation should happen immediately on a leave date; permanent deletion is a separate, later-stage decision that shouldn't be bundled into day-zero offboarding by default.</span></li>
     </ul>
   </div>
 </section>

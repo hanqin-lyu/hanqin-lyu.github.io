@@ -62,7 +62,7 @@
   <div class="wrap">
     <div class="section-head">
       <h2>The intrusion</h2>
-      <p>One chain, run as a single intrusion on one Windows Server — not four isolated tests.</p>
+      <p>One chain, run as a single intrusion on one Windows Server – not four isolated tests.</p>
     </div>
     <table class="metrics-table">
       <thead>
@@ -72,7 +72,7 @@
         <tr><td>1</td><td>Encoded PowerShell, download and execute</td><td>T1059.001</td><td>DeviceProcessEvents, DeviceNetworkEvents</td></tr>
         <tr><td>2</td><td>Scheduled task persistence</td><td>T1053.005</td><td>DeviceProcessEvents, DeviceEvents</td></tr>
         <tr><td>3</td><td>New local administrator account</td><td>T1136.001</td><td>DeviceEvents, DeviceProcessEvents</td></tr>
-        <tr><td>4</td><td>LSASS memory access attempt — expected to be blocked</td><td>T1003.001</td><td>DeviceEvents, Defender alerts</td></tr>
+        <tr><td>4</td><td>LSASS memory access attempt – expected to be blocked</td><td>T1003.001</td><td>DeviceEvents, Defender alerts</td></tr>
       </tbody>
     </table>
   </div>
@@ -96,7 +96,7 @@
       <li><strong>Deployed as code</strong>
         <span>The VM, network, auto-shutdown and budget alert are Terraform, shipped through the same reviewed CI/CD pipeline as my earlier projects: a pull request runs fmt, validate, Checkov and gitleaks then a plan, and a merge applies only after I approve the deployment. A docs-only change skips the heavy steps but still reports the required check.</span></li>
       <li><strong>Response order: scope, then isolate, then forensics</strong>
-        <span>On a confirmed intrusion the sequence is scope first — which host, which account, what ran — then isolate the device in Defender for Endpoint to stop lateral movement, then forensics and remediation. Containment comes before forensic completeness once the intrusion is confirmed, so the post-incident report records the isolation action and its time in the containment section. This is a real endpoint, not the honeypot, so isolation is the actual response, not a documented caveat.</span></li>
+        <span>On a confirmed intrusion the sequence is scope first – which host, which account, what ran – then isolate the device in Defender for Endpoint to stop lateral movement, then forensics and remediation. Containment comes before forensic completeness once the intrusion is confirmed, so the post-incident report records the isolation action and its time in the containment section. This is a real endpoint, not the honeypot, so isolation is the actual response, not a documented caveat.</span></li>
     </ul>
 
     <div class="note-box">
@@ -106,7 +106,7 @@
     </div>
 
     <div class="related-box" style="margin-top:32px;">
-      <p>Builds on: <a href="Closed-Loop-SOC-Sentinel.html">Closed-Loop SOC on Azure: Sentinel Detection &amp; SOAR Response</a> — detection and response on a honeypot; this project adds the endpoint investigation and the written report.
+      <p>Builds on: <a href="Closed-Loop-SOC-Sentinel.html">Closed-Loop SOC on Azure: Sentinel Detection &amp; SOAR Response</a> – detection and response on a honeypot; this project adds the endpoint investigation and the written report.
       Have an idea or a question? <a href="mailto:lyuhanqin@gmail.com">lyuhanqin@gmail.com</a>.</p>
     </div>
   </div>
