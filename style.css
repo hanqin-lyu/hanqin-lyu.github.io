@@ -262,7 +262,7 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
    Where it plays:
    - section titles reached by an in-page link (#projects)        → .section:target
    - the certification badges reached by #certifications          → .badge-row:target (below the row)
-   - project page titles, once on load                             → .trim.trim-on-load
+   - project page titles, once on load — reversed (closing)        → .trim.trim-on-load
    - a project card's title when the card is clicked (page script) → .trim.trim-play */
 .section-head h2, .badge-row[id], .trim { position: relative; }
 .section-head h2::before, .section-head h2::after,
@@ -286,14 +286,20 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
 .badge-row[id]::before, .badge-row[id]::after { top: calc(100% + var(--space-14)); }
 
 .section:target .section-head h2::before,
-.badge-row:target::before,
-.trim.trim-on-load::before {
+.badge-row:target::before {
   animation: trim-handle-left 2s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
 }
 .section:target .section-head h2::after,
-.badge-row:target::after,
-.trim.trim-on-load::after {
+.badge-row:target::after {
   animation: trim-handle-right 2s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+/* Project page titles play the reverse: the card opened the doors on the way in, so here
+   they arrive open, slide shut at the seam, hold, and retract into it. */
+.trim.trim-on-load::before {
+  animation: trim-handle-left-close 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+.trim.trim-on-load::after {
+  animation: trim-handle-right-close 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
 }
 /* Card click: only the draw-and-open part matters before the next page loads. */
 .trim.trim-play::before { animation: trim-handle-left 1.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -332,6 +338,21 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); line-height: 1
   45%  { opacity: 1; transform: translateX(6px) scaleX(1); }
   80%  { opacity: 1; transform: translateX(6px) scaleX(1); }
   100% { opacity: 0; transform: translateX(6px) scaleX(1); }
+}
+/* Closing — the mirror of the opening: fade in parted, slide shut, hold, retract into the seam. */
+@keyframes trim-handle-left-close {
+  0%   { opacity: 0; transform: translateX(-6px) scaleX(1); }
+  15%  { opacity: 1; transform: translateX(-6px) scaleX(1); }
+  45%  { opacity: 1; transform: translateX(0) scaleX(1); }
+  70%  { opacity: 1; transform: translateX(0) scaleX(1); }
+  100% { opacity: 0; transform: translateX(0) scaleX(0); }
+}
+@keyframes trim-handle-right-close {
+  0%   { opacity: 0; transform: translateX(6px) scaleX(1); }
+  15%  { opacity: 1; transform: translateX(6px) scaleX(1); }
+  45%  { opacity: 1; transform: translateX(0) scaleX(1); }
+  70%  { opacity: 1; transform: translateX(0) scaleX(1); }
+  100% { opacity: 0; transform: translateX(0) scaleX(0); }
 }
 .section-head p { color: var(--ink-soft); margin-top: var(--space-14); max-width: var(--measure-section); }
 
