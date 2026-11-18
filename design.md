@@ -14,12 +14,18 @@
 
 ## 内容基础
 
-- **语气：** 第一人称 “I”，陈述事实，动词具体（“I build Azure guardrails as code”）。不自夸，不用 “passionate”“rockstar” 之类的词。
-- **用结果说话：** 写可验证的结果——“the same code that deployed under Audit was rejected with a 403 under Deny”。数字保留原样（“3 pre-deployment gates”）。
-- **大小写：** 项目标题用 Title Case（“Shift-Left & Cloud Guardrails on Azure”）；按钮与链接用句首大写（“View projects”“Download resume (PDF)”）；eyebrow、status pill、表头全大写，由 CSS `text-transform` 或直接书写。
-- **状态词：** status pill 只放一个大写单词，表达“这个项目对安全做了什么”：`GOVERNED`、`ENFORCED`、`DETECTED`。进行中用 `IN PROGRESS`（替代源站的 “Loading...”，后者像加载占位）。
-- **认证名照官方写法：** `CompTIA Security+`、`SC-200`；进行中写作 `SC-100 — In Progress`（em dash 两侧留空格）。
-- **标点：** 用 em dash（—）连接补充说明；链接末尾用 “→”（“View details →”）；页脚用 “·” 分隔。
+- **语气：** 第一人称 “I”，果断、架构师口吻：先说系统做什么、再给证据（“I engineer cloud security as one system”）。不用 “moving deeper”“spent time”“Covers” 这类松散措辞，不自夸，不用 “passionate”“rockstar”。
+- **用结果说话：** 写可验证的结果——“the same code that deployed under Audit was rejected with a 403 under Deny”。规划中的项目用现在时描述设计，但状态 pill 必须如实（`PLANNED` / `IN PROGRESS`）。
+- **英文变体：澳洲英语（`lang="en-AU"`）**，遵循 Australian Government Style Manual：
+  - 拼写：colour、defence、organise、licence（名词）、centre、analyse。
+  - 大小写：所有标题（页面 `<title>`、h1–h3、项目名、eyebrow、卡片标题）用句首大写（sentence case），冒号后也小写（“Module 2: the closed loop”）；产品与功能的官方名称保留大写（Microsoft Sentinel、Conditional Access、Azure Policy、Key Vault、Defender for Endpoint）；Microsoft 文档里小写的功能名照小写（workload identity federation、entitlement management、lifecycle workflows、advanced hunting、managed identity）。按钮与链接同样句首大写（“View projects”“Download resume (PDF)”）。eyebrow、status pill、表头在页面上由 CSS 显示为全大写，源文本仍写句首大写。
+  - 数字：2 及以上用阿拉伯数字（“3 pre-deployment gates”“10 Logic Apps playbooks”“4-stage intrusion”），句首改写语序避免以数字开头；0 和 1 用单词（“each identity does one job”）。
+  - 正文与标题里用 “and”，不用 “&”（专名如 MITRE ATT&CK 除外）。
+  - 不用牛津逗号（“contained, hardened and delivered”），除非为避免歧义（“detection and response, and incident investigation”）。
+  - 缩写 “vs”、“eg”、“ie” 不加句点。
+- **状态词：** status pill 只放一个大写单词，表达“这个项目对安全做了什么”：`GOVERNED`、`ENFORCED`、`AUTOMATED`；未完成用 `PLANNED` 或 `IN PROGRESS`（不用 “Loading...”，后者像加载占位）。
+- **认证名照官方写法：** `CompTIA Security+`、`SC-200`、Certificate IV in Cyber Security；进行中写作 `SC-100 – in progress`。
+- **标点：** 补充说明用两侧带空格的 en dash（ – ），不用 em dash（—）；链接末尾用 “→”（“View details →”）；页脚写作 “© 2026 Hanqin Lyu · GitHub · LinkedIn · Email”，用 “·” 分隔；省略号用单字符 “…”。
 - **不用 emoji。** 唯一的字形是 badge 前的 `✓`（已验证）与 `○`（进行中）。
 
 ## 颜色

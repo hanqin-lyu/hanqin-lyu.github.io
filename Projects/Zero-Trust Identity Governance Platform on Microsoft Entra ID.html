@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zero-Trust Identity Governance Platform on Entra ID</title>
+<title>Zero-trust identity governance platform on Entra ID</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
@@ -19,7 +19,7 @@
     <div class="nav-links">
       <a href="../../index.html#projects">All projects</a>
       <a href="https://github.com/hanqin-lyu/project-IAM">Repo</a>
-      <button class="theme-toggle" type="button" aria-label="Switch color theme">
+      <button class="theme-toggle" type="button" aria-label="Switch colour theme">
         <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
         <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>
       </button>
@@ -29,8 +29,8 @@
 
 <header class="hero" style="padding-bottom:48px;">
   <div class="wrap">
-    <div class="eyebrow">Project / Identity Governance</div>
-    <h1 class="trim trim-on-load" style="max-width:22ch;">Zero-Trust Identity Governance Platform on Microsoft Entra ID</h1>
+    <div class="eyebrow">Project / Identity governance</div>
+    <h1 class="trim trim-on-load" style="max-width:22ch;">Zero-trust identity governance platform on Microsoft Entra ID</h1>
     <p class="lede">Eliminating long-lived static credentials and enforcing least-privilege,
       time-bound access for both human and non-human identities.</p>
     <div class="badge-row">
@@ -82,11 +82,11 @@
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Module 1: Application access — zero-secret authentication</h2>
+      <h2>Module 1: application access – zero-secret authentication</h2>
       <p>Two ways to eliminate stored credentials, chosen by where the caller actually runs.</p>
     </div>
 
-    <h3 style="font-size:18px; margin:0 0 4px;">Zero-secret CI/CD authentication (Workload Identity Federation)</h3>
+    <h3 style="font-size:18px; margin:0 0 4px;">Zero-secret CI/CD authentication (workload identity federation)</h3>
     <div class="diagram-block">
       <pre class="mermaid">
 sequenceDiagram
@@ -104,7 +104,7 @@ sequenceDiagram
     Note over GA,Azure: Token is scoped to this exact workflow run and repo/branch — cannot be replayed elsewhere
       </pre>
     </div>
-    <h3 style="font-size:18px; margin:40px 0 4px;">Managed Identity vs. Workload Identity Federation — same goal, different hosting boundary</h3>
+    <h3 style="font-size:18px; margin:40px 0 4px;">Managed identity vs workload identity federation – same goal, different hosting boundary</h3>
     <p style="color:var(--ink-soft); max-width:70ch; margin-bottom:16px;">
       Both paths achieve secret-free access to the same Key Vault, but which
       one is available depends entirely on where the calling workload actually
@@ -141,7 +141,7 @@ flowchart TB
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Module 2: Conditional Access — layered by risk, not one-size-fits-all</h2>
+      <h2>Module 2: Conditional Access – layered by risk, not one-size-fits-all</h2>
       <p>Six policies, each matched to a specific risk scenario. Verification strength scales with the sensitivity of what's being protected.</p>
     </div>
     <table class="stack-table">
@@ -182,7 +182,7 @@ flowchart LR
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Module3: Privileged access management (PIM)</h2>
+      <h2>Module 3: privileged access management (PIM)</h2>
       <p>Every activation is time-bound, justified, and auditable — nothing is standing.</p>
     </div>
     <div class="diagram-block">
@@ -211,7 +211,7 @@ sequenceDiagram
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Module4a: Entitlement Management — two access lifecycles, tested end to end</h2>
+      <h2>Module 4a: entitlement management – 2 access lifecycles, tested end to end</h2>
       <p>Not every access request should expire the same way. A short-lived task and a standing role need different governance models.</p>
     </div>
     <div class="diagram-block">
@@ -250,7 +250,7 @@ sequenceDiagram
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Module4b: Lifecycle Workflows — full Joiner-Mover-Leaver automation</h2>
+      <h2>Module 4b: lifecycle workflows – full joiner-mover-leaver automation</h2>
     </div>
     <div class="diagram-block">
       <pre class="mermaid">
@@ -295,7 +295,7 @@ flowchart LR
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Questions & Answers</h2>
+      <h2>Questions and answers</h2>
     </div>
     <ul class="decision-list">
       <li><strong>Why Workload Identity Federation over Managed Identity?</strong>
