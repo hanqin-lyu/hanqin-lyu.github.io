@@ -1,0 +1,4 @@
+Contact: mailto:security@hanqinlyu.com
+Expires: 2027-10-31T23:59:59Z
+Preferred-Languages: en, zh
+Canonical: https://hanqinlyu.com/.well-known/security.txt
