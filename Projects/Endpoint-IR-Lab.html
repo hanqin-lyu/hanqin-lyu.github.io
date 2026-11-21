@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Endpoint intrusion investigation lab – next project</title>
-<meta name="description" content="A four-step intrusion on a Windows Server with Defender for Endpoint, investigated from the alert only and written up as a client-facing post-incident report.">
+<meta name="description" content="A four-step intrusion on a Windows Server with Defender for Endpoint: investigated from the alert only, contained on the host, turned into a standing block, and written up as a client-facing post-incident report.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
@@ -47,7 +47,9 @@
       <span class="badge azure">Advanced Hunting</span>
       <span class="badge azure">KQL</span>
       <span class="badge azure">MITRE ATT&amp;CK</span>
+      <span class="badge azure">Live Response</span>
       <span class="badge azure">Atomic Red Team</span>
+      <span class="badge azure">ServiceNow</span>
       <span class="badge azure">Terraform</span>
     </div>
     <div class="meta-row">
@@ -72,9 +74,32 @@
         <tr><td>1</td><td>Encoded PowerShell, download and execute</td><td>T1059.001</td><td>DeviceProcessEvents, DeviceNetworkEvents</td></tr>
         <tr><td>2</td><td>Scheduled task persistence</td><td>T1053.005</td><td>DeviceProcessEvents, DeviceEvents</td></tr>
         <tr><td>3</td><td>New local administrator account</td><td>T1136.001</td><td>DeviceEvents, DeviceProcessEvents</td></tr>
-        <tr><td>4</td><td>LSASS memory access attempt – expected to be blocked</td><td>T1003.001</td><td>DeviceEvents, Defender alerts</td></tr>
+        <tr><td>4</td><td>LSASS memory dump with a built-in Windows tool (living off the land)</td><td>T1003.001</td><td>DeviceEvents, Defender alerts</td></tr>
       </tbody>
     </table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Investigation and response</h2>
+      <p>Everything starts from the alert. The order follows a confirmed intrusion: scope, isolate, then forensics and clean-up.</p>
+    </div>
+    <ul class="decision-list">
+      <li><strong>1 · One incident, not four alerts</strong>
+        <span>Defender XDR joins alerts that share a device, account, file or process into one incident and builds the attack story. The walkthrough records whether each step was pulled in on its own or had to be linked by hand.</span></li>
+      <li><strong>2 · Rebuild the timeline and the scope</strong>
+        <span>The device timeline rebuilds what happened on the host; advanced hunting confirms which host, which account and what ran.</span></li>
+      <li><strong>3 · Isolate the device</strong>
+        <span>Isolation in Defender for Endpoint stops lateral movement, and its time goes into the report. Optionally, a disk snapshot is taken first to preserve evidence – preserved, not analysed.</span></li>
+      <li><strong>4 · Collect and remove</strong>
+        <span>An investigation package is collected and reviewed (autoruns, scheduled tasks, processes, users and groups, network connections). Live response pulls the payload back with <code>getfile</code> and removes the scheduled task and the rogue admin account, with every command and its output logged.</span></li>
+      <li><strong>5 · Turn the finding into a standing block</strong>
+        <span>The payload's SHA256 becomes a tenant-wide custom indicator (block and remediate), and a second run is checked to be blocked. Then the device is released and the hunt runs again.</span></li>
+      <li><strong>6 · Ticket and report</strong>
+        <span>One incident is raised by hand in a free ServiceNow developer instance and worked from New to Resolved; its timestamps give the real time to acknowledge and time to resolve. It all ends in the post-incident report.</span></li>
+    </ul>
   </div>
 </section>
 
@@ -93,16 +118,23 @@
         <span>E5 user licences do not cover servers, and its identity and email parts are out of scope. Defender for Servers Plan 1 onboards Defender for Endpoint to one VM and bills by the hour.</span></li>
       <li><strong>Zero ingestion cost</strong>
         <span>Hunting and custom detections run in the Defender portal. Raw events are not streamed to Sentinel, where they would be billed by volume. Fallback if the portal features are not available: Sysmon and Azure Monitor Agent.</span></li>
+      <li><strong>Living off the land for step 4</strong>
+        <span>Step 4 dumps LSASS with a tool Windows already has (for example <code>comsvcs.dll MiniDump</code>) instead of dropping mimikatz.exe. Defender's signature would quarantine mimikatz before it touched LSASS, which tests the antivirus, not behavioural detection. The built-in route leaves no known-bad file on disk and raises the behavioural credential-theft alert the investigation starts from.</span></li>
+      <li><strong>Block the payload, not the system tools</strong>
+        <span>File indicators only match program files (.exe and .dll), so the block targets the first-stage payload. The built-in tools from step 4 are deliberately not blocked by hash, and the report explains why.</span></li>
       <li><strong>Deployed as code</strong>
-        <span>The VM, network, auto-shutdown and budget alert are Terraform, shipped through the same reviewed CI/CD pipeline as my earlier projects: a pull request runs fmt, validate, Checkov and gitleaks then a plan, and a merge applies only after I approve the deployment. A docs-only change skips the heavy steps but still reports the required check.</span></li>
-      <li><strong>Response order: scope, then isolate, then forensics</strong>
-        <span>On a confirmed intrusion the sequence is scope first – which host, which account, what ran – then isolate the device in Defender for Endpoint to stop lateral movement, then forensics and remediation. Containment comes before forensic completeness once the intrusion is confirmed, so the post-incident report records the isolation action and its time in the containment section. This is a real endpoint, not the honeypot, so isolation is the actual response, not a documented caveat.</span></li>
+        <span>The VM, network and auto-shutdown are Terraform; the resource group and its budget alert are created by hand, so the pipeline needs no subscription-wide write access. Changes ship through the same reviewed CI/CD pipeline as my earlier projects: a pull request runs fmt, validate, Checkov and gitleaks then a plan, and a merge applies only after I approve the deployment. A docs-only change skips the heavy steps but still reports the required check.</span></li>
+      <li><strong>Contain before forensic completeness</strong>
+        <span>Once the intrusion is confirmed, isolation comes before a full forensic picture. This is a real endpoint, not the honeypot, so isolation is the actual response, not a documented caveat.</span></li>
+      <li><strong>Tickets by hand, not automated</strong>
+        <span>Creating tickets from alerts automatically would need Sentinel to push them, which this project avoids to keep ingestion cost at zero. The ticket stays out of Terraform and CI.</span></li>
     </ul>
 
     <div class="note-box">
       <p><strong>Deliverables.</strong> Four KQL detections with at least one tuning record, an investigation
-      walkthrough, and a post-incident report with a timeline, scope, containment, recommendations, IOCs and
-      MITRE mapping. The client and case ID are fictional; the data is not.</p>
+      walkthrough with the wrong turns, a logged response on the host, a verified custom indicator, a ServiceNow
+      ticket with real time to acknowledge and resolve, and a post-incident report with a timeline, scope,
+      containment, prevention, recommendations, IOCs and MITRE mapping. The client and case ID are fictional; the data is not.</p>
     </div>
 
     <div class="related-box" style="margin-top:32px;">
