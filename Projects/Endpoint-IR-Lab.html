@@ -3,19 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Endpoint intrusion investigation lab – next project</title>
-<meta name="description" content="A four-step intrusion on a Windows Server with Defender for Endpoint: investigated from the alert only, contained on the host, turned into a standing block, and written up as a client-facing post-incident report.">
+<title>Endpoint intrusion investigation lab</title>
+<meta name="description" content="A four-step intrusion on a Windows Server with Defender for Endpoint, investigated from the alert only, contained and cleaned on the host, turned into a standing block and written up as a client-facing post-incident report – all from real lab telemetry.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="stylesheet" href="../style.css">
 <script src="../theme.js" defer></script>
+<link rel="stylesheet" href="../briefing.css">
+<script src="../briefing.js" defer></script>
 <style>
+  .evidence { margin: 20px 0 8px; }
+  .evidence img {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    display: block;
+  }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin: 28px 0 8px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .kpi b { display: block; font-family: var(--font-display); font-size: 28px; color: var(--azure); line-height: 1.1; }
+  .kpi span { display: block; margin-top: 6px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.4; }
   .note-box { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--azure); border-radius: var(--radius); padding: 16px 20px; margin: 20px 0 8px; }
   .note-box p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
   .note-box strong { color: var(--ink); }
   .stack-table, .metrics-table { display: block; overflow-x: auto; }
-  .draft-tag { display:inline-block; font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--warn); background: var(--warn-tint); border-radius: 999px; padding: 4px 12px; margin-bottom: 18px; }
 </style>
 </head>
 <body>
@@ -25,6 +39,7 @@
     <div class="nav-mark">Hanqin<span>Lyu</span></div>
     <div class="nav-links">
       <a href="../index.html#projects">All projects</a>
+      <a href="https://github.com/hanqin-lyu/project-Endpoint-IR-Lab">Repo</a>
       <button class="theme-toggle" type="button" aria-label="Switch colour theme">
         <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
         <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>
@@ -35,70 +50,287 @@
 
 <header class="hero" style="padding-bottom:48px;">
   <div class="wrap">
-    <div class="eyebrow">Next project / Incident investigation</div>
-    <span class="draft-tag">In progress · Nov 2026</span>
-    <h1 class="trim trim-on-load" style="max-width:22ch;">Endpoint intrusion investigation lab</h1>
-    <p class="lede">My earlier projects show I can build. This one practises what a SOC analyst does
-      with what gets built: investigate suspicious behaviour on an endpoint, starting from the alert,
-      and write a report a client can act on.</p>
+    <div class="eyebrow">Project / Incident investigation</div>
+    <h1 class="trim trim-on-load" style="max-width:24ch;">Endpoint intrusion investigation lab</h1>
+    <p class="lede">A four-step intrusion against a Windows Server protected by Defender for Endpoint,
+      investigated starting from the alert alone. I wrote the detections, rebuilt the attack from
+      the telemetry, contained and cleaned the host, turned the payload into a tenant-wide block and
+      wrote it up as a post-incident report a client could act on. Every alert, timestamp and
+      screenshot comes from my own lab machine.</p>
     <div class="badge-row">
       <span class="badge azure">Defender for Endpoint</span>
       <span class="badge azure">Defender for Servers</span>
-      <span class="badge azure">Advanced Hunting</span>
+      <span class="badge azure">Advanced hunting</span>
       <span class="badge azure">KQL</span>
       <span class="badge azure">MITRE ATT&amp;CK</span>
-      <span class="badge azure">Live Response</span>
+      <span class="badge azure">Live response</span>
       <span class="badge azure">Atomic Red Team</span>
       <span class="badge azure">ServiceNow</span>
       <span class="badge azure">Terraform</span>
     </div>
     <div class="meta-row">
-      <span>In progress</span>
+      <span>SC-200 aligned</span>
       <span>·</span>
-      <span><a href="https://github.com/hanqin-lyu/project-Endpoint-IR-Lab">GitHub repository</a></span>
+      <span>Run 24–25 Nov 2026</span>
+      <span>·</span>
+      <span>Updated Nov 2026</span>
     </div>
   </div>
 </header>
 
-<section class="section">
+<section class="section" id="briefing">
   <div class="wrap">
     <div class="section-head">
-      <h2>The intrusion</h2>
-      <p>One chain, run as a single intrusion on one Windows Server – not four isolated tests.</p>
+      <h2>60-second briefing</h2>
+      <p>The short, non-technical version. The full technical write-up follows below.</p>
     </div>
-    <table class="metrics-table">
-      <thead>
-        <tr><th>Step</th><th>Technique</th><th>MITRE ATT&amp;CK</th><th>Main tables</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>1</td><td>Encoded PowerShell, download and execute</td><td>T1059.001</td><td>DeviceProcessEvents, DeviceNetworkEvents</td></tr>
-        <tr><td>2</td><td>Scheduled task persistence</td><td>T1053.005</td><td>DeviceProcessEvents, DeviceEvents</td></tr>
-        <tr><td>3</td><td>New local administrator account</td><td>T1136.001</td><td>DeviceEvents, DeviceProcessEvents</td></tr>
-        <tr><td>4</td><td>LSASS memory dump with a built-in Windows tool (living off the land)</td><td>T1003.001</td><td>DeviceEvents, Defender alerts</td></tr>
-      </tbody>
-    </table>
+
+    <div class="deck" data-deck="briefing" aria-label="60-second briefing: endpoint intrusion investigation lab">
+
+      <article class="slide">
+        <p class="slide-kicker">The problem</p>
+        <h3 class="slide-title trim">An alert is not an answer. Someone has to work out what really happened.</h3>
+        <p class="slide-body">When a server raises an alarm, a client needs to know what the attacker did, what is
+          still at risk and what to fix – not a list of raw alerts.</p>
+        <p class="slide-body">I set out to answer: <strong style="color:var(--ink)">starting only from the alert, can I rebuild an intrusion, stop it and tell the client what to do next?</strong></p>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">What I built</p>
+        <h3 class="slide-title trim">A server to attack, rules to catch it and an investigation to explain it.</h3>
+        <ul class="slide-steps">
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg>
+            <strong>A real server under attack</strong>
+            <span>I ran a 4-step break-in against my own protected Windows server.</span>
+            <em>Azure VM · Defender for Endpoint · Atomic Red Team</em>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/><path d="M11 8v3l2 1.5"/></svg>
+            <strong>Rules that catch each step</strong>
+            <span>I wrote 4 detection rules, one per step, and checked each against the real events.</span>
+            <em>Custom detections · KQL · MITRE ATT&amp;CK</em>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 15.5h5"/></svg>
+            <strong>An investigation and a report</strong>
+            <span>I traced the attack, cleaned the server and wrote a report for the client.</span>
+            <em>Advanced hunting · Live response · Post-incident report</em>
+          </li>
+        </ul>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">How it works</p>
+        <h3 class="slide-title trim">From alert to report in 4 steps. Press Next to follow one.</h3>
+        <ol class="slide-flow">
+          <li data-fragment><strong>An alert fires</strong><span>A suspicious scheduled task raises the first alarm.</span></li>
+          <li data-fragment><strong>One case, not 26 alerts</strong><span>The related alerts are gathered into a single case for the whole attack.</span></li>
+          <li data-fragment><strong>Contain and clean</strong><span>The evidence is saved first, then everything the attacker left is removed.</span></li>
+          <li data-fragment><strong>Block and report</strong><span>The attacker's program is blocked everywhere and the client gets a written report.</span></li>
+        </ol>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">Proof</p>
+        <h3 class="slide-title trim">The whole attack, rebuilt from the server's own record.</h3>
+        <div class="slide-proof">
+          <a href="images/endpoint-ir-timeline-flagged.png" target="_blank" rel="noopener" title="Open the full-size screenshot"><img src="images/endpoint-ir-timeline-flagged.png" alt="Defender for Endpoint device timeline filtered to the events I flagged: the payload starting, the scheduled task spawn, a user added to local Administrators, an RDP session blocked and an LSASS dump tool caught by antivirus" loading="lazy"></a>
+          <div>
+            <p class="slide-body">Six flagged events tell the story: the program runs, a scheduled task is planted,
+              a new admin appears, the session is cut and the <strong style="color:var(--ink)">password-theft attempt is caught</strong>.</p>
+            <p class="slide-note">Screenshot from the Defender portal. Times are shown in Sydney time (AEDT).</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">Results</p>
+        <h3 class="slide-title trim">Stopped, cleaned and honest about what did not work.</h3>
+        <div class="kpi-row">
+          <div class="kpi"><b>26</b><span>alerts joined into one case, so the attack reads as one story</span></div>
+          <div class="kpi"><b>13 min</b><span>until the attacker's account was automatically contained</span></div>
+          <div class="kpi"><b>49 s</b><span>until the same account signed back in – the gap the report flags first</span></div>
+          <div class="kpi"><b>0</b><span>passwords stolen – both theft attempts were blocked</span></div>
+        </div>
+      </article>
+
+      <article class="slide">
+        <p class="slide-kicker">What this shows</p>
+        <h3 class="slide-title trim">How I investigate.</h3>
+        <ul class="slide-points">
+          <li><strong>I work from evidence, not the script.</strong> My wrong turns stay in the write-up.</li>
+          <li><strong>I test the controls I rely on.</strong> Automatic containment cut the session but did not keep the attacker out.</li>
+          <li><strong>I write for the person who acts.</strong> The report ends in clear, ranked recommendations.</li>
+        </ul>
+        <div class="slide-actions">
+          <a class="btn btn-primary" href="#overview">Read the full write-up ↓</a>
+          <a class="btn btn-secondary" href="../Hanqin_Lyu_Cloud_Security_Engineer_Resume.pdf">Download resume (PDF)</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="overview">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Overview</h2>
+    </div>
+    <p style="color:var(--ink-soft); max-width:70ch;">
+      My earlier projects show I can build: identity governance, guardrails as code and a Sentinel SOC.
+      SOC analyst roles ask for something else – investigating suspicious behaviour on an endpoint, and
+      writing a report someone else can act on. This project practises those two things on one Windows
+      Server 2022 VM in Azure, onboarded to Defender for Endpoint through Defender for Servers Plan 1.
+    </p>
+    <p style="color:var(--ink-soft); max-width:70ch;">
+      The discipline: <strong style="color:var(--ink);">detections are written first, and the investigation
+      starts from what fired, not from the attack script.</strong> The client and case (IR-2026-FIN042) are
+      fictional; the telemetry is not. The attack ran on 24 November 2026 and the response on 25 November.
+    </p>
+
+    <div class="kpi-row">
+      <div class="kpi"><b>4</b><span>custom KQL detections, one per step, checked against the real events</span></div>
+      <div class="kpi"><b>26</b><span>alerts in Defender incident 15, one host in scope</span></div>
+      <div class="kpi"><b>13 min 27 s</b><span>first chain alert to automatic user containment</span></div>
+      <div class="kpi"><b>0</b><span>LSASS dumps – antivirus blocked both attempts</span></div>
+    </div>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Investigation and response</h2>
-      <p>Everything starts from the alert. The order follows a confirmed intrusion: scope, isolate, then forensics and clean-up.</p>
+      <h2>The intrusion: planned vs what happened</h2>
+      <p>One chain, run as a single intrusion with Atomic Red Team – not four isolated tests. The run did not go to plan, and the write-up follows what happened.</p>
+    </div>
+    <table class="metrics-table">
+      <thead>
+        <tr><th>Step</th><th>Technique</th><th>MITRE ATT&amp;CK</th><th>What happened</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Encoded PowerShell downloads and starts a payload</td><td>T1059.001</td><td>Ran. No built-in alert fired; custom rule 1 now covers it</td></tr>
+        <tr><td>2</td><td>Scheduled task persistence</td><td>T1053.005</td><td>Ran. Raised the first alert of the chain</td></tr>
+        <tr><td>3</td><td>New local administrator account</td><td>T1136.001</td><td>Ran. The account was never used to sign in</td></tr>
+        <tr><td>4</td><td>LSASS memory dump with a built-in tool</td><td>T1003.001</td><td>Blocked by Defender Antivirus twice (<code>comsvcs.dll</code> MiniDump, then ProcDump) before the process started. No dump exists</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note-box">
+      <p><strong>The planned starting alert never fired.</strong> Step 4 was chosen as a living-off-the-land dump so
+      it would raise Defender's behavioural credential-theft alert, and the report was meant to start there. Because
+      antivirus stopped both attempts before any LSASS handle was opened, that alert never came. The investigation
+      started from the step 2 alert instead, and the report says so.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Detections: 4 custom rules and 2 tuning records</h2>
+      <p>Field names come from the real events on the lab machine, not from documentation or guesses. Each rule maps the device and user so its alerts can join the incident.</p>
+    </div>
+    <table class="stack-table">
+      <thead>
+        <tr><th>Rule</th><th>Catches</th><th>Severity</th><th>Verified on real data</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>01</td><td>PowerShell writes an .exe to a user's Temp folder</td><td>Medium</td><td>Yes – 1 row, the payload</td></tr>
+        <tr><td>02</td><td><code>schtasks /create</code> with a shell as the action</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td>03</td><td><code>net</code> adds a local administrator</td><td>Medium</td><td>Yes, after tuning</td></tr>
+        <tr><td>04</td><td>LSASS dump tooling</td><td>High</td><td>ProcDump branch yes; the <code>comsvcs.dll</code> branch cannot be, because the attack was blocked</td></tr>
+      </tbody>
+    </table>
+
+    <ul class="decision-list">
+      <li><strong>Rule 3: one action, four alerts → one</strong>
+        <span>A single admin-add produced four alerts and four incidents – <code>net</code> and <code>net1</code> for each of two commands. An analyst would get four tickets for one event. The query now collapses rows by device, account and a 5-minute window and lists every command line; after saving, it raised one alert, which joined the main incident.</span></li>
+      <li><strong>Entity mapping is not correlation</strong>
+        <span>Rules 2 and 4 opened their own incidents even though they share the host and the account. Incident correlation is a separate per-rule setting that was off. I turned it on and linked their 3 existing alerts into incident 15 by hand; the walkthrough records which alerts joined on their own and which did not.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Investigation: from the alert, with the wrong turns kept</h2>
+      <p>Attack story first, then advanced hunting to confirm what the graph implies, then the device timeline to rebuild the order of events.</p>
+    </div>
+
+    <div class="evidence">
+      <img src="images/endpoint-ir-incident-graph.png" alt="Defender XDR attack graph for incident 15, hands-on-keyboard attack launched from a compromised account: 24 active alerts in 9 categories, with the host vm-ir-lab-01 linked to 9 processes, 14 files, 3 users and a security group" loading="lazy">
+      <p class="diagram-caption">The incident graph for Defender incident 15 at the investigation stage (24 alerts; 26 after the indicator alerts were added). Times are shown in Sydney time (AEDT).</p>
+    </div>
+
+    <ul class="decision-list">
+      <li><strong>A "no rows" result is a finding to re-check, not a fact</strong>
+        <span>A device-wide query on the first day showed no account-creation events, so I built rule 3 on process events. Next day, an account-scoped query returned <code>UserAccountCreated</code> and the group changes at the exact second. I cannot tell whether I misread a partial view or the events had not landed; the result was kept only as a screenshot. Query results now go into a CSV.</span></li>
+      <li><strong>The portal masked the wrong thing</strong>
+        <span>Defender replaced the new account's name with asterisks in the <code>net user /add</code> command line but left the password in clear text – in process events and on three nodes of the ungrouped incident graph. The name came from the <code>localgroup</code> command instead, and every screenshot was redacted before it left the portal.</span></li>
+      <li><strong>Backfilled alerts carry the event time</strong>
+        <span>Filtering <code>AlertInfo</code> on when the custom alerts were raised returned nothing: for rules that backfill, the timestamp is when the event happened, hours earlier.</span></li>
+      <li><strong>The scope check has a stated limit</strong>
+        <span>A hunt for the incident's accounts and file hashes across every onboarded device found nothing else – but the tenant has one onboarded device, so the report says the hunt cannot show spread to machines Defender does not see.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Response and prevention: what the controls really did</h2>
+      <p>Order followed: scope, contain, preserve, then clean up. Every live response command and its output is logged in the repository.</p>
     </div>
     <ul class="decision-list">
-      <li><strong>1 · One incident, not four alerts</strong>
-        <span>Defender XDR joins alerts that share a device, account, file or process into one incident and builds the attack story. The walkthrough records whether each step was pulled in on its own or had to be linked by hand.</span></li>
-      <li><strong>2 · Rebuild the timeline and the scope</strong>
-        <span>The device timeline rebuilds what happened on the host; advanced hunting confirms which host, which account and what ran.</span></li>
-      <li><strong>3 · Isolate the device</strong>
-        <span>Isolation in Defender for Endpoint stops lateral movement, and its time goes into the report. Optionally, a disk snapshot is taken first to preserve evidence – preserved, not analysed.</span></li>
-      <li><strong>4 · Collect and remove</strong>
-        <span>An investigation package is collected and reviewed (autoruns, scheduled tasks, processes, users and groups, network connections). Live response pulls the payload back with <code>getfile</code> and removes the scheduled task and the rogue admin account, with every command and its output logged.</span></li>
-      <li><strong>5 · Turn the finding into a standing block</strong>
-        <span>The payload's SHA256 becomes a tenant-wide custom indicator (block and remediate), and a second run is checked to be blocked. Then the device is released and the hunt runs again.</span></li>
-      <li><strong>6 · Ticket and report</strong>
-        <span>One incident is raised by hand in a free ServiceNow developer instance and worked from New to Resolved; its timestamps give the real time to acknowledge and time to resolve. It all ends in the post-incident report.</span></li>
+      <li><strong>Automatic containment cut the session, not the access</strong>
+        <span>Defender's attack disruption contained the account 13 minutes 27 seconds after the first chain alert and ended the open RDP session. The same account signed straight back in 49 seconds later, and the second dump attempt happened in that new session – stopped by antivirus, not by containment. I reproduced it twice the next day, with no blocked sign-in logged either time.</span></li>
+      <li><strong>The device was never isolated</strong>
+        <span>The plan said isolate on confirmation; in the run, only the automatic user containment happened. The report records it as a gap rather than smoothing it over, and isolating on confirmation is its first recommendation.</span></li>
+      <li><strong>Evidence first, then cleanup</strong>
+        <span>An incremental disk snapshot preserved the state before anything was removed. Containment was then released so I could sign in. The scheduled task was removed through live response, then the added account and the working folders; a hunt confirmed the cleanup.</span></li>
+      <li><strong>From one incident to a standing block</strong>
+        <span>The payload's SHA256 became a tenant-wide block-and-remediate indicator. A new copy was refused at run time. But a copy left on disk was only quarantined when it was first read, and a copy restored from quarantine by an administrator ran while the alert reported it as blocked. The built-in tools from step 4 are deliberately not blocked by hash – they are legitimate, and an attacker can switch tools.</span></li>
+    </ul>
+
+    <div class="note-box">
+      <p><strong>The portal is not the device.</strong> Three times the portal's view disagreed with the host: the
+      containment did not stop new sign-ins, a restored file ran while its alert said blocked, and the incident
+      stayed New through the whole response. Each was checked on the host and written into the report.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Ticket, response times and the report</h2>
+      <p>Measured from Defender incident 15 with the same definition as my Sentinel SOC project (acknowledge = first status change away from New).</p>
+    </div>
+    <table class="metrics-table">
+      <thead>
+        <tr><th>Measure</th><th>Value</th><th>What it shows</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Time to contain (automatic)</td><td>13 min 27 s</td><td>First chain alert to user containment</td></tr>
+        <tr><td>Time to acknowledge</td><td>29 h 13 min 32 s</td><td>The incident stayed New until after the cleanup</td></tr>
+        <tr><td>Time to resolve</td><td>29 h 26 min 37 s</td><td>First chain alert to Closed, true positive</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note-box">
+      <p><strong>The long numbers measure the queue, not the work.</strong> Containment ran within minutes and the
+      cleanup was done the next day, but nobody moved the incident out of New. I report the real figures and the
+      reason, and one of the report's recommendations is to acknowledge and assign before acting. The ServiceNow
+      ticket (INC0010004, New → In Progress → Resolved) was raised after the response, so its own timestamps
+      measure the paperwork and are not used for these figures.</p>
+    </div>
+
+    <ul class="decision-list">
+      <li><strong>The post-incident report</strong>
+        <span>Written for the client: a plain-language summary, a timeline with the evidence behind each line, scope and its limits, the response, what the block did and did not do, ranked recommendations (isolate on confirmation, disable a compromised account by hand, alert on restores from quarantine, retire the shared local admin), IOCs with defanged URLs, and MITRE ATT&amp;CK mapping.</span></li>
     </ul>
   </div>
 </section>
@@ -107,39 +339,62 @@
   <div class="wrap">
     <div class="section-head">
       <h2>Design decisions</h2>
-      <p>Written down before building, so the claims stay honest.</p>
     </div>
     <ul class="decision-list">
       <li><strong>Real telemetry only</strong>
-        <span>Every alert, timestamp and screenshot comes from my own lab machine. Steps that would need synthetic logs were cut rather than faked.</span></li>
-      <li><strong>Investigate from the alert, not the script</strong>
-        <span>Detections are written before the chain runs. A day or two later I investigate starting only from what fired, and keep the wrong turns in the walkthrough.</span></li>
-      <li><strong>Defender for Servers, not Microsoft 365 E5</strong>
-        <span>E5 user licences do not cover servers, and its identity and email parts are out of scope. Defender for Servers Plan 1 onboards Defender for Endpoint to one VM and bills by the hour.</span></li>
+        <span>Synthetic log datasets were dropped. The chain uses only what my own machine records, and the planned extras – a Microsoft 365 identity half, a macro chain and C2 beaconing – were cut to keep it that way.</span></li>
+      <li><strong>Defender for Servers on one VM, not Microsoft 365 E5</strong>
+        <span>E5 user licences do not cover servers. Plan 1 is turned on at the resource level for the lab VM only, in Terraform, so nothing else in the subscription is billed.</span></li>
       <li><strong>Zero ingestion cost</strong>
-        <span>Hunting and custom detections run in the Defender portal. Raw events are not streamed to Sentinel, where they would be billed by volume. Fallback if the portal features are not available: Sysmon and Azure Monitor Agent.</span></li>
-      <li><strong>Living off the land for step 4</strong>
-        <span>Step 4 dumps LSASS with a tool Windows already has (for example <code>comsvcs.dll MiniDump</code>) instead of dropping mimikatz.exe. Defender's signature would quarantine mimikatz before it touched LSASS, which tests the antivirus, not behavioural detection. The built-in route leaves no known-bad file on disk and raises the behavioural credential-theft alert the investigation starts from.</span></li>
-      <li><strong>Block the payload, not the system tools</strong>
-        <span>File indicators only match program files (.exe and .dll), so the block targets the first-stage payload. The built-in tools from step 4 are deliberately not blocked by hash, and the report explains why.</span></li>
+        <span>Hunting and custom detections run in the Defender portal. Raw events are not streamed to Sentinel, where they would be billed by volume.</span></li>
+      <li><strong>Approval required for every remediation</strong>
+        <span>The lab VM sits in its own device group set to "Semi – approval required for all folders", so automated investigation proposes actions but cannot delete the payload or the task before I collect them.</span></li>
+      <li><strong>Tickets by hand</strong>
+        <span>Creating tickets from alerts automatically would need Sentinel to push them, which this project avoids to keep ingestion at zero.</span></li>
       <li><strong>Deployed as code</strong>
-        <span>The VM, network and auto-shutdown are Terraform; the resource group and its budget alert are created by hand, so the pipeline needs no subscription-wide write access. Changes ship through the same reviewed CI/CD pipeline as my earlier projects: a pull request runs fmt, validate, Checkov and gitleaks then a plan, and a merge applies only after I approve the deployment. A docs-only change skips the heavy steps but still reports the required check.</span></li>
-      <li><strong>Contain before forensic completeness</strong>
-        <span>Once the intrusion is confirmed, isolation comes before a full forensic picture. This is a real endpoint, not the honeypot, so isolation is the actual response, not a documented caveat.</span></li>
-      <li><strong>Tickets by hand, not automated</strong>
-        <span>Creating tickets from alerts automatically would need Sentinel to push them, which this project avoids to keep ingestion cost at zero. The ticket stays out of Terraform and CI.</span></li>
+        <span>The VM, network, Defender plan and auto-shutdown are Terraform, shipped through the same reviewed pipeline as my earlier projects: fmt, validate, Checkov and gitleaks then a plan on every pull request, and apply only after I approve the deployment.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>What this project demonstrates</h2>
+    </div>
+    <ul class="decision-list">
+      <li><strong>1. Investigation from the alert</strong>
+        <span>Attack story, advanced hunting and the device timeline used for the questions each one answers, with the wrong turns kept in the walkthrough instead of edited out.</span></li>
+      <li><strong>2. Detection engineering on real data</strong>
+        <span>Four rules built from the fields the real events contain, two tuning records, and a clear note on which branch of a rule could not be verified and why.</span></li>
+      <li><strong>3. Testing the controls, not trusting them</strong>
+        <span>Automatic containment, a block indicator and the incident queue each did less than the portal suggested; each gap was reproduced or checked on the host before it went into the report.</span></li>
+      <li><strong>4. Writing for the client</strong>
+        <span>A post-incident report that says what happened, what is still uncertain and what to do next, in that order.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Known gaps</h2>
+      <p>Stated openly so the scope of the claims is clear.</p>
+    </div>
+    <ul class="decision-list">
+      <li><strong>One host, one tenant</strong>
+        <span>The scope hunt can only see onboarded devices, and there is one. A real estate would need the same hunt across every device, plus sign-in logs for the account.</span></li>
+      <li><strong>The credential-theft alert was never exercised</strong>
+        <span>Antivirus blocked step 4 before LSASS was touched, so the behavioural alert the lab was designed around did not fire, and one branch of rule 4 is unverified.</span></li>
+      <li><strong>Why containment let the account back in is not confirmed</strong>
+        <span>The behaviour is reproduced and recorded; the cause is not. The report recommends investigating it before relying on the feature.</span></li>
+      <li><strong>Initial access is out of scope</strong>
+        <span>The attacker used valid credentials for the local admin account over RDP. How they were obtained is outside this investigation.</span></li>
     </ul>
 
-    <div class="note-box">
-      <p><strong>Deliverables.</strong> Four KQL detections with at least one tuning record, an investigation
-      walkthrough with the wrong turns, a logged response on the host, a verified custom indicator, a ServiceNow
-      ticket with real time to acknowledge and resolve, and a post-incident report with a timeline, scope,
-      containment, prevention, recommendations, IOCs and MITRE mapping. The client and case ID are fictional; the data is not.</p>
-    </div>
-
     <div class="related-box" style="margin-top:32px;">
-      <p>Builds on: <a href="Closed-Loop-SOC-Sentinel.html">Closed-Loop SOC on Azure: Sentinel Detection &amp; SOAR Response</a> – detection and response on a honeypot; this project adds the endpoint investigation and the written report.
-      Have an idea or a question? <a href="mailto:hello@hanqinlyu.com">hello@hanqinlyu.com</a>.</p>
+      <p>Builds on: <a href="Closed-Loop-SOC-Sentinel.html">Closed-loop SOC on Azure: Sentinel detection and SOAR response</a> – detection and automated response on a honeypot; this project adds the endpoint investigation and the written report.
+      Source: <a href="https://github.com/hanqin-lyu/project-Endpoint-IR-Lab">project-Endpoint-IR-Lab</a>.</p>
     </div>
   </div>
 </section>

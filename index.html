@@ -162,12 +162,12 @@
       <a class="project-card" href="Projects/Endpoint-IR-Lab.html" style="display:block; color:inherit;">
         <div class="card-top">
           <h3 class="trim">Endpoint intrusion investigation lab</h3>
-          <span class="status-pill in-progress">IN PROGRESS</span>
+          <span class="status-pill">INVESTIGATED</span>
         </div>
-        <p>A 4-stage intrusion on a Windows Server protected by Defender for Endpoint –
-          encoded PowerShell, scheduled-task persistence, a rogue local admin and an LSASS dump
-          with a built-in tool – investigated from the alert alone and delivered as a client-facing
-          post-incident report. Real telemetry from my own lab; no synthetic logs.</p>
+        <p>A 4-stage intrusion on a Windows Server protected by Defender for Endpoint, investigated
+          from the alert alone: 4 custom KQL detections, 26 alerts in one incident, a contained and
+          cleaned host, a tenant-wide block on the payload and a client-facing post-incident report
+          that records where automatic containment fell short. Real telemetry from my own lab.</p>
         <div class="tag-row">
           <span class="tag">Defender for Endpoint</span>
           <span class="tag">Advanced hunting</span>
@@ -177,7 +177,10 @@
           <span class="tag">Incident report</span>
           <span class="tag">Terraform</span>
         </div>
-        <span class="card-link">View details →</span>
+        <span class="card-links">
+          <span class="card-link">View details →</span>
+          <span class="card-link card-briefing" data-briefing>60-sec briefing →</span>
+        </span>
       </a>
 
       <a class="project-card" href="Projects/M365-BEC-IR-Lab.html" style="display:block; color:inherit;">
