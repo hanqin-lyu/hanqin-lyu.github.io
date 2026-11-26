@@ -70,9 +70,9 @@
         <tr><th>Step</th><th>What happens</th><th>MITRE ATT&amp;CK</th><th>Main tables</th></tr>
       </thead>
       <tbody>
-        <tr><td>1</td><td>Sign-in with valid credentials from an unusual network</td><td>T1078.004</td><td>SigninLogs</td></tr>
-        <tr><td>2</td><td>Read a secret from Azure Key Vault</td><td>T1555.006</td><td>AzureDiagnostics</td></tr>
-        <tr><td>3</td><td>Federate into AWS; list IAM users and roles</td><td>T1078.004, T1087.004</td><td>SigninLogs, AWSCloudTrail</td></tr>
+        <tr><td>1</td><td>Sign-in with valid credentials from an unusual network</td><td>T1078.004</td><td>Entra admin center (no premium licence)</td></tr>
+        <tr><td>2</td><td>Read a secret from Azure Key Vault</td><td>T1555.006</td><td>AZKVAuditLogs, AzureActivity</td></tr>
+        <tr><td>3</td><td>Federate into AWS; list IAM users and roles</td><td>T1078.004, T1087.004</td><td>AWSCloudTrail</td></tr>
         <tr><td>4</td><td>Read an S3 bucket; create an access key</td><td>T1530, T1098.001</td><td>AWSCloudTrail</td></tr>
         <tr><td>5</td><td>SSM Session Manager to an EC2 instance; run commands</td><td>T1651</td><td>AWSCloudTrail, Syslog</td></tr>
       </tbody>
@@ -88,7 +88,7 @@
     </div>
     <ul class="decision-list">
       <li><strong>The attack is seen in pieces</strong>
-        <span>Entra sign-ins, Azure activity, CloudTrail and host logs sit apart, so each alert looks small. All sources land in one workspace, every rule maps the same account entity, and a correlation rule joins the steps into one incident. Target: one incident per chain run.</span></li>
+        <span>Azure activity, Key Vault, CloudTrail and host logs sit apart, so each alert looks small. All sources land in one workspace, every rule maps the same account entity, and a correlation rule joins the steps into one incident. Target: one incident per chain run.</span></li>
       <li><strong>Nobody can say what the identity could reach</strong>
         <span>The blast radius is answered in two columns: what the identity <em>could</em> reach, from a read-only permission listing across Entra ID, Azure and IAM Identity Center, and what it <em>did</em> touch, from the logs. The gap between them drives the hardening recommendations.</span></li>
       <li><strong>Containing one cloud leaves the other open</strong>
