@@ -138,6 +138,8 @@
         <span>Every alert, timestamp and screenshot comes from my own trial tenant. No synthetic logs.</span></li>
       <li><strong>Automation first, analyst on the gaps</strong>
         <span>AIR already clusters the phishing, finds recipients and clicks, and proposes removing mail. Redoing that by hand is not how a SOC works, so the analyst reviews it and spends effort on persistence, what was read, privilege and recovery.</span></li>
+      <li><strong>Real uncertainty, not staged mistakes</strong>
+        <span>Colleagues do normal things that look suspicious – a VPN sign-in while travelling, a harmless inbox rule, a low-permission app – and a script I run picks the attack timing and which of these happen, sealed until the walkthrough is written. A hypothesis log records each dead end with the evidence that ruled it out.</span></li>
       <li><strong>Evidence an SME already has</strong>
         <span>No extra log pipeline. The persistence is proven from the consent audit event, <code>MailItemsAccessed</code> and non-interactive sign-ins, all in the Defender portal and Purview – the sources a small Australian organisation on E5 or Business Premium can actually check.</span></li>
       <li><strong>Two certifications, one incident</strong>
@@ -147,7 +149,7 @@
     </ul>
 
     <div class="note-box">
-      <p><strong>Deliverables.</strong> An automation review, an investigation walkthrough of the gaps, a record of the containment and
+      <p><strong>Deliverables.</strong> An automation review, an investigation walkthrough of the gaps with its hypothesis log, a record of the containment and
       hardening actions, a recovery record, a user training record, and a client-facing post-incident report
       that compares the response for a standard and an admin account. The client is fictional; the data is not.</p>
     </div>
