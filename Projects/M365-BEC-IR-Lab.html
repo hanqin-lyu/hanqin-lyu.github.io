@@ -40,14 +40,17 @@
     <h1 class="trim trim-on-load" style="max-width:22ch;">M365 account compromise and BEC investigation lab</h1>
     <p class="lede">The endpoint lab covers investigating a host. This one covers the other incident
       a SOC analyst is asked about most: a compromised Microsoft 365 account and the business
-      email compromise that follows – investigated from the alert, contained, hardened and
-      written up for a client.</p>
+      email compromise that follows. Defender's automated investigation runs first; the analyst
+      reviews it, investigates the gaps it leaves, contains, recovers, hardens and writes it up
+      for a client.</p>
     <div class="badge-row">
       <span class="badge azure">Microsoft 365 E5</span>
       <span class="badge azure">Microsoft Defender XDR</span>
       <span class="badge azure">Entra ID</span>
       <span class="badge azure">BEC</span>
       <span class="badge azure">OAuth Consent</span>
+      <span class="badge azure">AIR</span>
+      <span class="badge azure">Purview Audit</span>
       <span class="badge azure">Incident Report</span>
     </div>
     <div class="meta-row">
@@ -71,7 +74,7 @@
       <tbody>
         <tr><td>1</td><td>A phishing campaign reaches several users: the finance user clicks a credential-phishing link; a colleague's version with an attachment (the EICAR test file) is blocked</td></tr>
         <tr><td>2</td><td>Unusual sign-in to the account</td></tr>
-        <tr><td>3</td><td>Persistence: signed in as the user, the attacker consents to an app with mailbox access, so access survives a password reset</td></tr>
+        <tr><td>3</td><td>Persistence: signed in as the user, the attacker adds the mailbox to a legitimate mail client (eM Client), whose access survives a password reset</td></tr>
         <tr><td>4</td><td>Inbox rule that forwards mail outside the organisation</td></tr>
         <tr><td>5</td><td>From the finance mailbox, the attacker sends a bank-details change request to a lab "supplier" and phishing to colleagues</td></tr>
       </tbody>
@@ -85,7 +88,7 @@
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Five problems it has to solve</h2>
+      <h2>Six problems it has to solve</h2>
       <p>Each part of the investigation and response serves one of these, and each is answered with evidence from the tenant.</p>
     </div>
     <ul class="decision-list">
@@ -99,6 +102,8 @@
         <span>A bank-details change request or a link to colleagues looks legitimate. Every fraud and phishing email is traced to its recipients and clicks, the delivered messages are removed, and the report names who must be warned before money moves.</span></li>
       <li><strong>Nobody checks whether the attacker reached admin rights</strong>
         <span>A privilege check with evidence – role assignments, admin consent, new app credentials, mail flow rule changes – and a report section on how the response would differ for an admin account.</span></li>
+      <li><strong>Automation is trusted blindly or redone by hand</strong>
+        <span>An automation review: what AIR found, proposed and did, which actions were approved or rejected and why, and what it missed. Manual effort goes only to the gaps, and automation coverage – how much of the final evidence AIR found on its own – is measured.</span></li>
     </ul>
   </div>
 </section>
@@ -131,8 +136,10 @@
     <ul class="decision-list">
       <li><strong>Real telemetry only</strong>
         <span>Every alert, timestamp and screenshot comes from my own trial tenant. No synthetic logs.</span></li>
-      <li><strong>Investigate from the alert</strong>
-        <span>The investigation starts in the Defender portal from what fired, not from the simulation notes.</span></li>
+      <li><strong>Automation first, analyst on the gaps</strong>
+        <span>AIR already clusters the phishing, finds recipients and clicks, and proposes removing mail. Redoing that by hand is not how a SOC works, so the analyst reviews it and spends effort on persistence, what was read, privilege and recovery.</span></li>
+      <li><strong>Evidence an SME already has</strong>
+        <span>No extra log pipeline. The persistence is proven from the consent audit event, <code>MailItemsAccessed</code> and non-interactive sign-ins, all in the Defender portal and Purview – the sources a small Australian organisation on E5 or Business Premium can actually check.</span></li>
       <li><strong>Two certifications, one incident</strong>
         <span>The investigation uses SC-200 skills; the containment and hardening use SC-300 skills.</span></li>
       <li><strong>Same fictional client as the endpoint lab</strong>
@@ -140,7 +147,7 @@
     </ul>
 
     <div class="note-box">
-      <p><strong>Deliverables.</strong> An investigation walkthrough, a record of the containment and
+      <p><strong>Deliverables.</strong> An automation review, an investigation walkthrough of the gaps, a record of the containment and
       hardening actions, a recovery record, a user training record, and a client-facing post-incident report
       that compares the response for a standard and an admin account. The client is fictional; the data is not.</p>
     </div>
