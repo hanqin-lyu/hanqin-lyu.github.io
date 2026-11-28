@@ -62,27 +62,30 @@
   <div class="wrap">
     <div class="section-head">
       <h2>The incident</h2>
-      <p>One compromise, run as a single story in a Microsoft 365 E5 trial tenant.</p>
+      <p>One compromise, run as a single story in a Microsoft 365 E5 trial tenant. The victim is a finance user: a standard account with no admin role, but one that can make money move.</p>
     </div>
     <table class="metrics-table">
       <thead>
         <tr><th>Step</th><th>What happens</th></tr>
       </thead>
       <tbody>
-        <tr><td>1</td><td>Phishing email reaches a user</td></tr>
+        <tr><td>1</td><td>A phishing campaign reaches several users: the finance user clicks a credential-phishing link; a colleague's version with an attachment (the EICAR test file) is blocked</td></tr>
         <tr><td>2</td><td>Unusual sign-in to the account</td></tr>
-        <tr><td>3</td><td>Malicious OAuth application consent grant</td></tr>
+        <tr><td>3</td><td>Persistence: signed in as the user, the attacker consents to an app with mailbox access, so access survives a password reset</td></tr>
         <tr><td>4</td><td>Inbox rule that forwards mail outside the organisation</td></tr>
-        <tr><td>5</td><td>Internal spread from the compromised mailbox</td></tr>
+        <tr><td>5</td><td>From the finance mailbox, the attacker sends a bank-details change request to a lab "supplier" and phishing to colleagues</td></tr>
       </tbody>
     </table>
+    <div class="note-box">
+      <p><strong>Scope.</strong> Step 1 is scoped as a campaign – who else got it, what verdict each message got, whether it was removed after delivery – and stays on the email side; an attachment opened on a device is endpoint work. Impersonation BEC from lookalike domains is not simulated and appears only as a hardening recommendation.</p>
+    </div>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Four problems it has to solve</h2>
+      <h2>Five problems it has to solve</h2>
       <p>Each part of the investigation and response serves one of these, and each is answered with evidence from the tenant.</p>
     </div>
     <ul class="decision-list">
@@ -92,8 +95,29 @@
         <span>The rule is found, tied to the session that created it, and the mail it forwarded is counted.</span></li>
       <li><strong>The client needs to know what was read</strong>
         <span>Purview Audit <code>MailItemsAccessed</code> scopes what the attacker read. The report states what was accessed and the evidence for it, as input to the client's decision on notification, for example under Australia's Notifiable Data Breaches scheme.</span></li>
-      <li><strong>Phishing from an internal mailbox is trusted</strong>
-        <span>Every recipient and every click is traced, and the delivered messages are removed.</span></li>
+      <li><strong>Mail from a real finance mailbox is trusted</strong>
+        <span>A bank-details change request or a link to colleagues looks legitimate. Every fraud and phishing email is traced to its recipients and clicks, the delivered messages are removed, and the report names who must be warned before money moves.</span></li>
+      <li><strong>Nobody checks whether the attacker reached admin rights</strong>
+        <span>A privilege check with evidence – role assignments, admin consent, new app credentials, mail flow rule changes – and a report section on how the response would differ for an admin account.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Recovery and the people side</h2>
+      <p>BEC destroys nothing, so recovery is about the money, the mail, the account and the people – and users are part of both detection and prevention.</p>
+    </div>
+    <ul class="decision-list">
+      <li><strong>Funds</strong>
+        <span>The bank's fraud team is called at once and the case reported to ReportCyber. No money moves in the lab, so this is written as the procedure and when it would start.</span></li>
+      <li><strong>Mail and account</strong>
+        <span>Supplier replies hidden by the inbox rule are restored, and a re-test shows the account has no attacker sessions, app grants, rules or MFA methods left.</span></li>
+      <li><strong>User reporting</strong>
+        <span>Colleagues report the phishing with the built-in Report button; the investigation records whether a user report or an automatic alert came first.</span></li>
+      <li><strong>Training and process</strong>
+        <span>Attack simulation training copies the real lures after the incident. For finance, the fix is a process rule: bank-detail changes are confirmed by calling a number already on file. The lab has only a few test users, so the numbers show the mechanism, not a workforce.</span></li>
     </ul>
   </div>
 </section>
@@ -117,7 +141,8 @@
 
     <div class="note-box">
       <p><strong>Deliverables.</strong> An investigation walkthrough, a record of the containment and
-      hardening actions, and a client-facing post-incident report. The client is fictional; the data is not.</p>
+      hardening actions, a recovery record, a user training record, and a client-facing post-incident report
+      that compares the response for a standard and an admin account. The client is fictional; the data is not.</p>
     </div>
 
     <div class="related-box" style="margin-top:32px;">
