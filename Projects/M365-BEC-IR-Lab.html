@@ -73,9 +73,9 @@
       </thead>
       <tbody>
         <tr><td>1</td><td>A phishing campaign reaches several users: the finance user clicks a credential-phishing link; a colleague's version with an attachment (the EICAR test file) is blocked</td></tr>
-        <tr><td>2</td><td>Unusual sign-in to the account</td></tr>
+        <tr><td>2</td><td>Unusual sign-in from another country with the stolen password. MFA stays on: posing as IT support on a call, the attacker gets the user to enter the number shown</td></tr>
         <tr><td>3</td><td>Persistence: signed in as the user, the attacker adds the mailbox to a legitimate mail client (eM Client), whose access survives a password reset</td></tr>
-        <tr><td>4</td><td>Inbox rule that forwards mail outside the organisation</td></tr>
+        <tr><td>4</td><td>Two inbox rules: one tries to forward mail outside, which the tenant's default blocks; one hides the supplier's replies so the finance user never sees them</td></tr>
         <tr><td>5</td><td>From the finance mailbox, the attacker sends a bank-details change request to a lab "supplier" and phishing to colleagues</td></tr>
       </tbody>
     </table>
@@ -94,8 +94,8 @@
     <ul class="decision-list">
       <li><strong>A password reset does not end the compromise</strong>
         <span>The OAuth consent grant, the inbox rule and tokens already issued keep working. Containment runs in order – revoke sessions, reset the password, remove the inbox rule, revoke the app's consent grant – and a re-test shows each attacker foothold is rejected.</span></li>
-      <li><strong>A forwarding rule moves mail out unseen</strong>
-        <span>The rule is found, tied to the session that created it, and the mail it forwarded is counted.</span></li>
+      <li><strong>Inbox rules work out of sight</strong>
+        <span>One rule tries to send mail out, another hides the replies that would expose the fraud. Both are found and tied to the session that created them, forward attempts are counted, and the hidden replies are restored.</span></li>
       <li><strong>The client needs to know what was read</strong>
         <span>Purview Audit <code>MailItemsAccessed</code> scopes what the attacker read. The report states what was accessed and the evidence for it, as input to the client's decision on notification, for example under Australia's Notifiable Data Breaches scheme.</span></li>
       <li><strong>Mail from a real finance mailbox is trusted</strong>
@@ -136,6 +136,8 @@
     <ul class="decision-list">
       <li><strong>Real telemetry only</strong>
         <span>Every alert, timestamp and screenshot comes from my own trial tenant. No synthetic logs.</span></li>
+      <li><strong>Defaults left as they are</strong>
+        <span>No security setting is loosened to let the attack through. Every setting that shapes the story is recorded before the attack, and each hardening change – Conditional Access with a location rule, sign-in location shown in Authenticator prompts, explicit forwarding block, restricted app consent – is re-tested against the step it targets, including any step it does not stop.</span></li>
       <li><strong>Automation first, analyst on the gaps</strong>
         <span>AIR already clusters the phishing, finds recipients and clicks, and proposes removing mail. Redoing that by hand is not how a SOC works, so the analyst reviews it and spends effort on persistence, what was read, privilege and recovery.</span></li>
       <li><strong>Real uncertainty, not staged mistakes</strong>
@@ -150,7 +152,7 @@
 
     <div class="note-box">
       <p><strong>Deliverables.</strong> An automation review, an investigation walkthrough of the gaps with its hypothesis log, a record of the containment and
-      hardening actions, a recovery record, a user training record, and a client-facing post-incident report
+      hardening actions with a before-and-after settings table, a recovery record, a user training record, and a client-facing post-incident report
       that compares the response for a standard and an admin account. The client is fictional; the data is not.</p>
     </div>
 
