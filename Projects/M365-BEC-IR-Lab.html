@@ -82,6 +82,25 @@
 <section class="section">
   <div class="wrap">
     <div class="section-head">
+      <h2>Four problems it has to solve</h2>
+      <p>Each part of the investigation and response serves one of these, and each is answered with evidence from the tenant.</p>
+    </div>
+    <ul class="decision-list">
+      <li><strong>A password reset does not end the compromise</strong>
+        <span>The OAuth consent grant, the inbox rule and tokens already issued keep working. Containment runs in order – revoke sessions, reset the password, remove the inbox rule, revoke the app's consent grant – and a re-test shows each attacker foothold is rejected.</span></li>
+      <li><strong>A forwarding rule moves mail out unseen</strong>
+        <span>The rule is found, tied to the session that created it, and the mail it forwarded is counted.</span></li>
+      <li><strong>The client needs to know what was read</strong>
+        <span>Purview Audit <code>MailItemsAccessed</code> scopes what the attacker read. The report states what was accessed and the evidence for it, as input to the client's decision on notification, for example under Australia's Notifiable Data Breaches scheme.</span></li>
+      <li><strong>Phishing from an internal mailbox is trusted</strong>
+        <span>Every recipient and every click is traced, and the delivered messages are removed.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
       <h2>Design decisions</h2>
       <p>Written down before building, so the claims stay honest.</p>
     </div>
